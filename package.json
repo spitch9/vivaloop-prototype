@@ -1,0 +1,9 @@
+{
+  "name": "vivaloop-prototype",
+  "version": "1.0.0",
+  "description": "Vivaloop — Prototype Phase 4 avec Netlify Functions et Google Gemini",
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

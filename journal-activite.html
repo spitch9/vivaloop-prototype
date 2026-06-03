@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Journal : Activité Physique</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-in-right {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes bounce-in {
+      0% { opacity: 0; transform: scale(0.5); }
+      60% { opacity: 1; transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pulse-progress {
+      0%, 100% { box-shadow: 0 0 12px rgba(251, 146, 60, 0.6); }
+      50% { box-shadow: 0 0 20px rgba(251, 146, 60, 0.9); }
+    }
+    @keyframes shine {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes bolt-pulse {
+      0%, 100% { transform: scale(1) rotate(-3deg); filter: brightness(1); }
+      50% { transform: scale(1.15) rotate(3deg); filter: brightness(1.2); }
+    }
+    @keyframes number-pop {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-in-right { animation: slide-in-right 0.5s ease-out backwards; }
+    .animate-bounce-in { animation: bounce-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-pulse-progress { animation: pulse-progress 2s ease-in-out infinite; }
+    .animate-bolt { animation: bolt-pulse 1.5s ease-in-out infinite; transform-origin: center; display: inline-block; }
+    .animate-number-pop { animation: number-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    
+    /* Brillance sur le bouton continuer */
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke {
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Bouton 3D */
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(6px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* === CURSEUR (SLIDER) ORANGE/JAUNE PERSONNALISÉ === */
+    .slider-track {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 24px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Pouce du slider (Webkit) */
+    .slider-track::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      border: 4px solid white;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(251, 146, 60, 0.6), 0 0 0 4px rgba(251, 146, 60, 0.2);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      margin-top: 0px;
+    }
+    .slider-track::-webkit-slider-thumb:active {
+      transform: scale(1.15);
+      box-shadow: 0 8px 24px rgba(251, 146, 60, 0.8), 0 0 0 8px rgba(251, 146, 60, 0.3);
+    }
+    
+    /* Pouce du slider (Firefox) */
+    .slider-track::-moz-range-thumb {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      border: 4px solid white;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(251, 146, 60, 0.6);
+    }
+    
+    /* Track personnalisé en arrière-plan */
+    .slider-bg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      right: 0;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+    }
+    
+    .slider-fill {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      height: 14px;
+      background: linear-gradient(90deg, #fbbf24 0%, #f97316 50%, #ef4444 100%);
+      border-radius: 999px;
+      box-shadow: 0 0 16px rgba(251, 146, 60, 0.5);
+      pointer-events: none;
+      transition: width 0.1s ease-out;
+    }
+    
+    /* Petits ticks du slider */
+    .slider-tick {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      pointer-events: none;
+    }
+    
+    /* === GRILLE D'ACTIVITÉS === */
+    .activity-btn {
+      transition: all 0.2s ease;
+    }
+    .activity-btn.selected .activity-card {
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      border-color: rgba(254, 215, 170, 0.7);
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(251, 146, 60, 0.5);
+    }
+    .activity-btn.selected .activity-emoji {
+      transform: scale(1.15);
+    }
+    .activity-btn.selected .activity-label {
+      color: white;
+    }
+    .activity-emoji { transition: transform 0.2s ease; }
+    .activity-label { transition: color 0.2s ease; }
+    
+    /* Bouton continuer désactivé/activé */
+    .continue-btn-disabled { opacity: 0.4; pointer-events: none; }
+    .continue-btn-enabled { opacity: 1; pointer-events: auto; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(251, 146, 60, 0.3), 0 30px 60px -30px rgba(239, 68, 68, 0.3);">
+    
+    <!-- ====== FOND ANTHRACITE AVEC ACCENT ORANGE/CHALEUR ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0f1424 0%, #1f1814 50%, #281410 100%);">
+      <!-- Halos orange/rouge pour l'énergie -->
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-amber-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Texture pointillée -->
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE TYPE STORY ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <!-- Barre de progression segmentée (5 segments) - étape 1 active -->
+        <div class="flex gap-1.5 mb-4 animate-slide-up" style="animation-delay: 0.1s;">
+          <!-- Segment 1 : actif (étape courante) -->
+          <div class="flex-1 h-1.5 bg-orange-400 rounded-full animate-pulse-progress relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-300 to-orange-500"></div>
+          </div>
+          <!-- Segments 2-5 : à venir -->
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+        </div>
+
+        <!-- Indicateur d'étape "1 / 5" -->
+        <div class="flex justify-center mb-3 animate-slide-up" style="animation-delay: 0.15s;">
+          <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+            <span class="text-white/60 text-xs font-black tracking-wider">ÉTAPE <span class="text-orange-400">1</span> / 5</span>
+          </div>
+        </div>
+
+        <!-- Barre de navigation -->
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour -->
+          <a href="accueil.html" class="animate-slide-up btn-3d" style="animation-delay: 0.2s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <!-- Titre central -->
+          <div class="flex-1 flex justify-center animate-slide-up" style="animation-delay: 0.25s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-2 border border-orange-500/30">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Activité Physique
+                <span class="text-xl animate-bolt">⚡</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Badge Niveau -->
+          <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-2xl px-2.5 py-2 flex items-center gap-1 border-2 border-blue-300/40">
+                <i data-lucide="star" class="w-4 h-4 text-yellow-300" style="fill: #fde047;"></i>
+                <span class="text-white font-black text-xs tracking-wide text-stroke">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2. ZONE CENTRALE - LA CARTE QUESTION ====== -->
+      <div class="flex-1 flex flex-col px-5 mt-2 overflow-y-auto">
+        
+        <!-- Carte question principale (compacte pour laisser place au slider) -->
+        <div class="animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-orange-950 rounded-3xl translate-y-2"></div>
+            
+            <div class="relative bg-gradient-to-br from-orange-800 via-orange-900 to-red-950 rounded-3xl p-5 border-2 border-orange-500/30 overflow-hidden">
+              
+              <!-- Décorations -->
+              <div class="absolute -top-10 -right-10 w-40 h-40 bg-orange-400/20 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl"></div>
+              
+              <!-- Émojis flottants décoratifs -->
+              <div class="absolute top-3 right-4 text-xl opacity-30 animate-float-gentle" style="animation-delay: 0.5s;">🏃</div>
+              <div class="absolute bottom-3 left-3 text-xl opacity-30 animate-float-gentle" style="animation-delay: 1s;">💪</div>
+
+              <!-- Contenu -->
+              <div class="relative">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="bg-orange-500/20 rounded-full px-3 py-1 border border-orange-400/40">
+                    <span class="text-orange-300 text-[10px] font-black tracking-widest">QUESTION DU JOUR</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-center mb-2">
+                  <div class="text-5xl animate-float-gentle">🏃‍♂️</div>
+                </div>
+                
+                <h2 class="text-white font-black text-xl text-center leading-tight tracking-tight text-stroke">
+                  Combien de temps as-tu <span class="text-orange-300">bougé</span> aujourd'hui ?
+                </h2>
+                <p class="text-orange-200/70 text-center text-xs font-bold mt-1.5">
+                  Sport, marche, jeu dehors... tout compte ! ⚡
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== AFFICHAGE DE LA VALEUR + SLIDER ====== -->
+        <div class="mt-5 animate-slide-up" style="animation-delay: 0.55s;">
+          
+          <!-- Grosse valeur affichée -->
+          <div class="flex justify-center mb-3">
+            <div class="relative">
+              <!-- Halo derrière le chiffre -->
+              <div class="absolute inset-0 bg-orange-500/30 rounded-full blur-xl"></div>
+              
+              <div class="relative flex items-baseline gap-1">
+                <span id="time-value" class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-400 to-red-500 text-stroke" style="line-height: 1;">30</span>
+                <span class="text-2xl font-black text-orange-300">min</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Encouragement dynamique -->
+          <div class="flex justify-center mb-4">
+            <div id="encouragement" class="bg-zinc-900/70 backdrop-blur-sm rounded-full px-4 py-1.5 border border-orange-500/30 animate-number-pop">
+              <span class="text-orange-300 text-xs font-black tracking-wide">💪 Bon début, continue !</span>
+            </div>
+          </div>
+
+          <!-- Le slider -->
+          <div class="relative px-2 py-3">
+            <div class="slider-bg"></div>
+            <div id="slider-fill" class="slider-fill" style="width: 25%;"></div>
+            
+            <!-- Ticks visuels -->
+            <div class="slider-tick" style="left: 0%;"></div>
+            <div class="slider-tick" style="left: 25%;"></div>
+            <div class="slider-tick" style="left: 50%;"></div>
+            <div class="slider-tick" style="left: 75%;"></div>
+            <div class="slider-tick" style="left: 100%;"></div>
+            
+            <input type="range" id="time-slider" class="slider-track" min="0" max="120" value="30" step="5" oninput="updateTime(this.value)">
+          </div>
+          
+          <!-- Labels min/max -->
+          <div class="flex justify-between px-2 mt-1">
+            <span class="text-white/40 text-[10px] font-black">0 min</span>
+            <span class="text-white/40 text-[10px] font-black">60 min</span>
+            <span class="text-white/40 text-[10px] font-black">120+ min</span>
+          </div>
+        </div>
+
+        <!-- ====== GRILLE D'ACTIVITÉS ====== -->
+        <div class="mt-5 animate-slide-up" style="animation-delay: 0.7s;">
+          <p class="text-white/70 text-xs font-black tracking-widest text-center mb-3">QUELLE ACTIVITÉ PRINCIPALE ?</p>
+          
+          <div class="grid grid-cols-4 gap-2">
+            
+            <!-- Sport -->
+            <button onclick="selectActivity('sport', this)" class="activity-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="activity-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl p-3 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="activity-emoji text-3xl">⚽</span>
+                <span class="activity-label text-white/80 text-[10px] font-black tracking-wide">SPORT</span>
+              </div>
+            </button>
+
+            <!-- Marche -->
+            <button onclick="selectActivity('marche', this)" class="activity-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="activity-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl p-3 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="activity-emoji text-3xl">🚶</span>
+                <span class="activity-label text-white/80 text-[10px] font-black tracking-wide">MARCHE</span>
+              </div>
+            </button>
+
+            <!-- Vélo -->
+            <button onclick="selectActivity('velo', this)" class="activity-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="activity-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl p-3 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="activity-emoji text-3xl">🚲</span>
+                <span class="activity-label text-white/80 text-[10px] font-black tracking-wide">VÉLO</span>
+              </div>
+            </button>
+
+            <!-- Autre -->
+            <button onclick="selectActivity('autre', this)" class="activity-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="activity-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl p-3 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="activity-emoji text-3xl">🏋🏻‍♀️</span>
+                <span class="activity-label text-white/80 text-[10px] font-black tracking-wide">AUTRE</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Petit message d'honnêteté -->
+        <div class="mt-4 mb-2 animate-slide-up" style="animation-delay: 0.8s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              ✨ Bouger, c'est <span class="text-orange-400">pour toi</span> avant tout.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 3. PIED DE PAGE ====== -->
+      <div class="flex-shrink-0 px-5 pb-6 pt-3">
+        <div class="animate-slide-up" style="animation-delay: 0.9s;">
+          <button id="continue-btn" onclick="goToNext()" class="continue-btn-disabled relative block w-full btn-3d transition-opacity duration-300">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-3xl translate-y-2"></div>
+            
+            <div class="shine-effect relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-3xl px-6 py-5 border-2 border-blue-300/50 overflow-hidden"
+                 style="box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);">
+              
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+              
+              <div class="relative flex items-center justify-center gap-2">
+                <span class="text-white font-black text-xl tracking-wide text-stroke">Continuer</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 text-white" stroke-width="3.5"></i>
+              </div>
+              
+              <div class="relative flex justify-center mt-1">
+                <span class="text-blue-100 text-[10px] font-bold tracking-widest">PROCHAINE ÉTAPE : ALIMENTATION 🍎</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Indicateur swipe iOS -->
+        <div class="flex justify-center mt-3">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    let selectedActivity = null;
+    let selectedTime = 30;
+    
+    // Mise à jour du curseur de temps
+    function updateTime(value) {
+      selectedTime = parseInt(value);
+      const display = document.getElementById('time-value');
+      const fill = document.getElementById('slider-fill');
+      const encouragement = document.getElementById('encouragement');
+      
+      // Animation du chiffre
+      display.textContent = value;
+      display.classList.remove('animate-number-pop');
+      void display.offsetWidth; // force reflow
+      display.classList.add('animate-number-pop');
+      
+      // Remplissage du slider
+      const percentage = (value / 120) * 100;
+      fill.style.width = percentage + '%';
+      
+      // Message d'encouragement contextuel
+      let message = '';
+      if (value == 0) {
+        message = '🛋️ Pas grave, demain est un autre jour';
+      } else if (value < 15) {
+        message = '🌱 Chaque minute compte !';
+      } else if (value < 30) {
+        message = '💪 Bon début, continue !';
+      } else if (value < 60) {
+        message = '🔥 Super, tu te bouges !';
+      } else if (value < 90) {
+        message = '⚡ Wow, beaucoup d\'énergie !';
+      } else {
+        message = '🏆 Champion(ne) du jour !';
+      }
+      encouragement.querySelector('span').textContent = message;
+      encouragement.classList.remove('animate-number-pop');
+      void encouragement.offsetWidth;
+      encouragement.classList.add('animate-number-pop');
+      
+      checkCanContinue();
+    }
+    
+    // Sélection d'une activité
+    function selectActivity(activity, btn) {
+      selectedActivity = activity;
+      
+      // Retire la sélection précédente
+      document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('selected'));
+      
+      // Active la nouvelle
+      btn.classList.add('selected');
+      
+      checkCanContinue();
+    }
+    
+    // Vérifie si on peut continuer (activité sélectionnée requise)
+    function checkCanContinue() {
+      const continueBtn = document.getElementById('continue-btn');
+      if (selectedActivity !== null) {
+        continueBtn.classList.remove('continue-btn-disabled');
+        continueBtn.classList.add('continue-btn-enabled');
+      }
+    }
+    
+    function goToNext() {
+      if (selectedActivity === null) return;
+      
+      // Animation de sortie + navigation vers Alimentation
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.3';
+      setTimeout(() => {
+        window.location.href = 'journal-alimentation.html';
+      }, 300);
+    }
+  </script>
+</body>
+</html>

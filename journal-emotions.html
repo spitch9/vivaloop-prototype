@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Journal : Émotions</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pulse-progress {
+      0%, 100% { box-shadow: 0 0 12px rgba(168, 85, 247, 0.6); }
+      50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.9); }
+    }
+    @keyframes shine {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes emoji-breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @keyframes aura-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.15); opacity: 0.7; }
+    }
+    @keyframes leaf-float {
+      0%, 100% { transform: translateY(0px) rotate(-10deg); opacity: 0.4; }
+      50% { transform: translateY(-10px) rotate(10deg); opacity: 0.7; }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-pulse-progress { animation: pulse-progress 2s ease-in-out infinite; }
+    .animate-emoji-breathe { animation: emoji-breathe 3s ease-in-out infinite; }
+    .animate-aura-pulse { animation: aura-pulse 3s ease-in-out infinite; }
+    .animate-leaf-float { animation: leaf-float 4s ease-in-out infinite; }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(6px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* === SLIDER ÉMOTIONNEL ÉPAIS === */
+    .mood-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 32px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .mood-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid white;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.2);
+      transition: transform 0.15s ease;
+      margin-top: 0;
+    }
+    .mood-slider::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+    }
+    
+    .mood-slider::-moz-range-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid white;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Track de fond du slider — dégradé rouge → vert */
+    .mood-slider-bg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      right: 0;
+      height: 18px;
+      background: linear-gradient(90deg, 
+        #ef4444 0%,    /* rouge — tendu */
+        #f97316 25%,   /* orange */
+        #eab308 50%,   /* jaune */
+        #22c55e 75%,   /* vert */
+        #06b6d4 100%); /* cyan — zen */
+      border-radius: 999px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(168, 85, 247, 0.2);
+      pointer-events: none;
+    }
+    
+    /* === BOUTONS HUMEUR === */
+    .humeur-btn { transition: all 0.25s ease; }
+    .humeur-btn.selected .humeur-card {
+      transform: scale(1.08) translateY(-4px);
+    }
+    .humeur-btn:not(.selected).has-selection {
+      opacity: 0.45;
+      transform: scale(0.95);
+    }
+    .humeur-card { transition: all 0.25s ease; }
+    
+    /* Bouton continuer */
+    .continue-btn-disabled { opacity: 0.4; pointer-events: none; }
+    .continue-btn-enabled { opacity: 1; pointer-events: auto; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(168, 85, 247, 0.3), 0 30px 60px -30px rgba(139, 92, 246, 0.4);">
+    
+    <!-- ====== FOND ANTHRACITE AVEC ACCENT VIOLET/POURPRE ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0f1424 0%, #1a1530 50%, #1f1130 100%);">
+      <!-- Halos violets pour évoquer la sérénité, l'introspection -->
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Petites feuilles qui flottent (évocation zen/nature) -->
+      <div class="absolute top-16 left-6 text-sm text-purple-200/30 animate-leaf-float" style="animation-delay: 0s;">🍃</div>
+      <div class="absolute top-32 right-8 text-xs text-purple-200/30 animate-leaf-float" style="animation-delay: 1s;">🍃</div>
+      <div class="absolute bottom-1/3 left-4 text-xs text-purple-200/30 animate-leaf-float" style="animation-delay: 2s;">🍃</div>
+      
+      <!-- Texture pointillée -->
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE TYPE STORY ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <!-- Barre de progression : 3 segments complétés + segment 4 actif (violet) -->
+        <div class="flex gap-1.5 mb-4 animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="flex-1 h-1.5 bg-purple-400 rounded-full" style="box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);"></div>
+          <div class="flex-1 h-1.5 bg-purple-400 rounded-full" style="box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);"></div>
+          <div class="flex-1 h-1.5 bg-purple-400 rounded-full" style="box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);"></div>
+          <!-- Segment 4 actif -->
+          <div class="flex-1 h-1.5 bg-purple-400 rounded-full animate-pulse-progress relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-fuchsia-300 to-purple-500"></div>
+          </div>
+          <!-- Segment 5 à venir -->
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+        </div>
+
+        <!-- Indicateur d'étape -->
+        <div class="flex justify-center mb-3 animate-slide-up" style="animation-delay: 0.15s;">
+          <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+            <span class="text-white/60 text-xs font-black tracking-wider">ÉTAPE <span class="text-purple-400">4</span> / 5</span>
+          </div>
+        </div>
+
+        <!-- Barre de navigation -->
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour : revient à Sommeil -->
+          <a href="journal-sommeil.html" class="animate-slide-up btn-3d" style="animation-delay: 0.2s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <!-- Titre central -->
+          <div class="flex-1 flex justify-center animate-slide-up" style="animation-delay: 0.25s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-2 border border-purple-500/30">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Émotions
+                <span class="text-xl animate-float-gentle inline-block">🧘</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Badge Niveau -->
+          <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-2xl px-2.5 py-2 flex items-center gap-1 border-2 border-blue-300/40">
+                <i data-lucide="star" class="w-4 h-4 text-yellow-300" style="fill: #fde047;"></i>
+                <span class="text-white font-black text-xs tracking-wide text-stroke">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2. ZONE CENTRALE - ANCRAGE DANS LE PRÉSENT ====== -->
+      <div class="flex-1 flex flex-col px-5 mt-1 overflow-y-auto">
+        
+        <!-- Grande carte avec émoji + slider -->
+        <div class="animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-purple-950 rounded-3xl translate-y-2"></div>
+            
+            <div class="relative bg-gradient-to-br from-purple-900 via-violet-950 to-fuchsia-950 rounded-3xl p-5 border-2 border-purple-500/30 overflow-hidden">
+              
+              <!-- Décorations -->
+              <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-400/20 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-fuchsia-400/15 rounded-full blur-2xl"></div>
+
+              <div class="relative">
+                <!-- Label -->
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="bg-purple-500/20 rounded-full px-3 py-1 border border-purple-400/40">
+                    <span class="text-purple-300 text-[10px] font-black tracking-widest">EN CE MOMENT MÊME</span>
+                  </div>
+                </div>
+
+                <!-- Question -->
+                <h2 class="text-white font-black text-lg text-center leading-tight tracking-tight text-stroke mb-4">
+                  Comment te sens-tu <span class="text-purple-300">en ce moment même</span> ?
+                </h2>
+
+                <!-- ÉMOJI DYNAMIQUE GIGANTESQUE -->
+                <div class="flex justify-center mb-4">
+                  <div class="relative">
+                    <!-- Aura colorée derrière l'émoji (change selon la valeur) -->
+                    <div id="emoji-aura" class="absolute inset-0 rounded-full blur-2xl animate-aura-pulse" 
+                         style="background: radial-gradient(circle, rgba(34, 197, 94, 0.6), transparent 70%); transform: scale(1.5);"></div>
+                    
+                    <!-- L'émoji lui-même -->
+                    <div class="relative w-32 h-32 flex items-center justify-center">
+                      <span id="mood-emoji" class="text-8xl animate-emoji-breathe select-none" 
+                            style="filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));">😌</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Étiquette descriptive du ressenti -->
+                <div class="flex justify-center mb-4">
+                  <div id="mood-label" class="bg-zinc-900/70 backdrop-blur-sm rounded-full px-4 py-1.5 border border-purple-500/30 transition-all">
+                    <span class="text-white text-sm font-black tracking-wide">😌 Plutôt calme</span>
+                  </div>
+                </div>
+
+                <!-- LE SLIDER ÉMOTIONNEL -->
+                <div class="px-1">
+                  <!-- Labels des extrémités -->
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-2xl">🌩️</span>
+                      <div class="flex flex-col">
+                        <span class="text-red-300 text-[10px] font-black tracking-wider">TENDU</span>
+                        <span class="text-red-300/70 text-[9px] font-bold">Stressé(e)</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <div class="flex flex-col items-end">
+                        <span class="text-cyan-300 text-[10px] font-black tracking-wider">CALME</span>
+                        <span class="text-cyan-300/70 text-[9px] font-bold">Zen</span>
+                      </div>
+                      <span class="text-2xl">☀️</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Le slider -->
+                  <div class="relative px-1 py-3">
+                    <div class="mood-slider-bg"></div>
+                    <input type="range" id="mood-slider" class="mood-slider" min="0" max="100" value="65" oninput="updateMood(this.value)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== 3. ZONE SECONDAIRE - HUMEUR GLOBALE ====== -->
+        <div class="mt-5 animate-slide-up" style="animation-delay: 0.6s;">
+          <p class="text-white/80 text-sm font-black tracking-tight text-center mb-3">
+            Et ton humeur globale aujourd'hui ?
+          </p>
+          
+          <div class="grid grid-cols-3 gap-2.5">
+            
+            <!-- Bof -->
+            <button onclick="selectHumeur('bof', this)" class="humeur-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="humeur-card relative bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-3 border-2 border-slate-600/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">🌧️</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">BOF</span>
+              </div>
+            </button>
+
+            <!-- Correct -->
+            <button onclick="selectHumeur('correct', this)" class="humeur-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-purple-950 rounded-2xl translate-y-1.5"></div>
+              <div class="humeur-card relative bg-gradient-to-br from-purple-700 to-purple-800 rounded-2xl p-3 border-2 border-purple-600/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">⛅</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">CORRECT</span>
+              </div>
+            </button>
+
+            <!-- Super -->
+            <button onclick="selectHumeur('super', this)" class="humeur-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-yellow-900 rounded-2xl translate-y-1.5"></div>
+              <div class="humeur-card relative bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl p-3 border-2 border-amber-400/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">🌟</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">SUPER</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Petit message bienveillant -->
+        <div class="mt-4 mb-2 animate-slide-up" style="animation-delay: 0.75s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              💜 Toutes les émotions sont <span class="text-purple-400">valides</span>, même les difficiles.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 4. PIED DE PAGE ====== -->
+      <div class="flex-shrink-0 px-5 pb-6 pt-3">
+        <div class="animate-slide-up" style="animation-delay: 0.85s;">
+          <button id="continue-btn" onclick="goToNext()" class="continue-btn-disabled relative block w-full btn-3d transition-opacity duration-300">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-3xl translate-y-2"></div>
+            
+            <div class="shine-effect relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-3xl px-6 py-5 border-2 border-blue-300/50 overflow-hidden"
+                 style="box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);">
+              
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+              
+              <div class="relative flex items-center justify-center gap-2">
+                <span class="text-white font-black text-xl tracking-wide text-stroke">Continuer</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 text-white" stroke-width="3.5"></i>
+              </div>
+              
+              <div class="relative flex justify-center mt-1">
+                <span class="text-blue-100 text-[10px] font-bold tracking-widest">DERNIÈRE ÉTAPE : BIEN-ÊTRE NUMÉRIQUE 📱</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div class="flex justify-center mt-3">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    let moodValue = 65;       // 0 = très tendu, 100 = très zen
+    let selectedHumeur = null;
+    
+    // Tableau des états émotionnels selon la valeur du slider
+    // Chaque palier a son émoji, son label et la couleur de l'aura
+    const moodStates = [
+      { min: 0,  max: 14,  emoji: '😰', label: '😰 Très stressé(e)',     auraColor: 'rgba(239, 68, 68, 0.6)' },
+      { min: 15, max: 29,  emoji: '😟', label: '😟 Tendu(e)',             auraColor: 'rgba(249, 115, 22, 0.6)' },
+      { min: 30, max: 44,  emoji: '😕', label: '😕 Un peu inquiet(e)',    auraColor: 'rgba(234, 179, 8, 0.6)' },
+      { min: 45, max: 59,  emoji: '😐', label: '😐 Neutre',                auraColor: 'rgba(234, 179, 8, 0.5)' },
+      { min: 60, max: 74,  emoji: '😌', label: '😌 Plutôt calme',          auraColor: 'rgba(34, 197, 94, 0.6)' },
+      { min: 75, max: 89,  emoji: '😊', label: '😊 Bien dans ma peau',     auraColor: 'rgba(34, 197, 94, 0.7)' },
+      { min: 90, max: 100, emoji: '🤩', label: '🤩 Super zen !',           auraColor: 'rgba(6, 182, 212, 0.7)' }
+    ];
+    
+    // Mise à jour de l'émoji et de la couleur selon la valeur du slider
+    function updateMood(value) {
+      moodValue = parseInt(value);
+      
+      // Trouve l'état correspondant
+      const state = moodStates.find(s => moodValue >= s.min && moodValue <= s.max);
+      
+      // Met à jour l'émoji
+      const emojiEl = document.getElementById('mood-emoji');
+      emojiEl.textContent = state.emoji;
+      
+      // Met à jour le label
+      const labelEl = document.getElementById('mood-label');
+      labelEl.querySelector('span').textContent = state.label;
+      
+      // Met à jour l'aura (lueur derrière l'émoji)
+      const auraEl = document.getElementById('emoji-aura');
+      auraEl.style.background = `radial-gradient(circle, ${state.auraColor}, transparent 70%)`;
+    }
+    
+    // Sélection de l'humeur globale
+    function selectHumeur(humeur, btn) {
+      selectedHumeur = humeur;
+      
+      document.querySelectorAll('.humeur-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.classList.add('has-selection');
+      });
+      btn.classList.add('selected');
+      btn.classList.remove('has-selection');
+      
+      // Active le bouton continuer
+      const continueBtn = document.getElementById('continue-btn');
+      continueBtn.classList.remove('continue-btn-disabled');
+      continueBtn.classList.add('continue-btn-enabled');
+    }
+    
+    function goToNext() {
+      if (selectedHumeur === null) return;
+      
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.3';
+      setTimeout(() => {
+        window.location.href = 'journal-ecrans.html';
+      }, 300);
+    }
+  </script>
+</body>
+</html>

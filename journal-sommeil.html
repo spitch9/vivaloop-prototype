@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Journal : Sommeil</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-in-right {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes float-stars {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
+      50% { transform: translateY(-8px) rotate(15deg); opacity: 0.9; }
+    }
+    @keyframes pulse-progress {
+      0%, 100% { box-shadow: 0 0 12px rgba(96, 165, 250, 0.6); }
+      50% { box-shadow: 0 0 20px rgba(96, 165, 250, 0.9); }
+    }
+    @keyframes shine {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes moon-glow {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(147, 197, 253, 0.6)); }
+      50% { filter: drop-shadow(0 0 20px rgba(147, 197, 253, 0.9)); }
+    }
+    @keyframes z-float {
+      0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: translateY(-30px) translateX(10px) scale(1.2); opacity: 0; }
+    }
+    @keyframes number-pop {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes total-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(96, 165, 250, 0.4), inset 0 0 20px rgba(96, 165, 250, 0.1); }
+      50% { box-shadow: 0 0 50px rgba(96, 165, 250, 0.7), inset 0 0 30px rgba(96, 165, 250, 0.2); }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-in-right { animation: slide-in-right 0.5s ease-out backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-float-stars { animation: float-stars 4s ease-in-out infinite; }
+    .animate-pulse-progress { animation: pulse-progress 2s ease-in-out infinite; }
+    .animate-moon-glow { animation: moon-glow 3s ease-in-out infinite; }
+    .animate-z-float { animation: z-float 3s ease-in-out infinite; }
+    .animate-number-pop { animation: number-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .animate-total-glow { animation: total-glow 3s ease-in-out infinite; }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    
+    /* Bouton 3D */
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(6px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* Boutons +/- des sélecteurs d'heure */
+    .time-btn {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .time-btn:active {
+      transform: scale(0.85);
+    }
+    
+    /* Boutons de ressenti (qualitatif) */
+    .mood-btn { transition: all 0.25s ease; }
+    .mood-btn.selected .mood-card {
+      transform: scale(1.08) translateY(-4px);
+      border-color: rgba(147, 197, 253, 0.7);
+    }
+    .mood-btn:not(.selected).has-selection {
+      opacity: 0.45;
+      transform: scale(0.95);
+    }
+    .mood-card { transition: all 0.25s ease; }
+    
+    /* Bouton continuer */
+    .continue-btn-disabled { opacity: 0.4; pointer-events: none; }
+    .continue-btn-enabled { opacity: 1; pointer-events: auto; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(96, 165, 250, 0.3), 0 30px 60px -30px rgba(99, 102, 241, 0.4);">
+    
+    <!-- ====== FOND BLEU NUIT PROFOND ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a0e1f 0%, #0f1635 50%, #1a1845 100%);">
+      <!-- Halos bleus pour évoquer la nuit -->
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Petites étoiles scintillantes en arrière-plan -->
+      <div class="absolute top-12 left-8 text-xs text-blue-200/40 animate-float-stars" style="animation-delay: 0s;">✦</div>
+      <div class="absolute top-24 right-12 text-sm text-blue-200/30 animate-float-stars" style="animation-delay: 0.5s;">✦</div>
+      <div class="absolute top-40 left-16 text-[10px] text-blue-200/40 animate-float-stars" style="animation-delay: 1s;">✦</div>
+      <div class="absolute bottom-1/3 right-8 text-xs text-blue-200/30 animate-float-stars" style="animation-delay: 1.5s;">✦</div>
+      <div class="absolute bottom-1/2 left-4 text-[10px] text-blue-200/40 animate-float-stars" style="animation-delay: 2s;">✦</div>
+      
+      <!-- Texture pointillée -->
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE TYPE STORY ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <!-- Barre de progression : 2/5 complétés, segment 3 actif (bleu) -->
+        <div class="flex gap-1.5 mb-4 animate-slide-up" style="animation-delay: 0.1s;">
+          <!-- Segments 1-2 : complétés -->
+          <div class="flex-1 h-1.5 bg-blue-400 rounded-full" style="box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);"></div>
+          <div class="flex-1 h-1.5 bg-blue-400 rounded-full" style="box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);"></div>
+          <!-- Segment 3 : actif -->
+          <div class="flex-1 h-1.5 bg-blue-400 rounded-full animate-pulse-progress relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-cyan-300 to-blue-500"></div>
+          </div>
+          <!-- Segments 4-5 : à venir -->
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+        </div>
+
+        <!-- Indicateur d'étape -->
+        <div class="flex justify-center mb-3 animate-slide-up" style="animation-delay: 0.15s;">
+          <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+            <span class="text-white/60 text-xs font-black tracking-wider">ÉTAPE <span class="text-blue-400">3</span> / 5</span>
+          </div>
+        </div>
+
+        <!-- Barre de navigation -->
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour : revient à Alimentation -->
+          <a href="journal-alimentation.html" class="animate-slide-up btn-3d" style="animation-delay: 0.2s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <!-- Titre central -->
+          <div class="flex-1 flex justify-center animate-slide-up" style="animation-delay: 0.25s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-2 border border-blue-500/30">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Sommeil
+                <span class="text-xl animate-float-gentle inline-block">😴</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Badge Niveau -->
+          <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-2xl px-2.5 py-2 flex items-center gap-1 border-2 border-blue-300/40">
+                <i data-lucide="star" class="w-4 h-4 text-yellow-300" style="fill: #fde047;"></i>
+                <span class="text-white font-black text-xs tracking-wide text-stroke">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2. ZONE CENTRALE - SÉLECTEURS D'HEURE ====== -->
+      <div class="flex-1 flex flex-col px-5 mt-1 overflow-y-auto">
+        
+        <!-- Carte principale avec les deux sélecteurs -->
+        <div class="animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-blue-950 rounded-3xl translate-y-2"></div>
+            
+            <div class="relative bg-gradient-to-br from-indigo-900 via-blue-950 to-slate-950 rounded-3xl p-5 border-2 border-blue-500/30 overflow-hidden">
+              
+              <!-- Décorations atmosphériques -->
+              <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-indigo-400/15 rounded-full blur-2xl"></div>
+              
+              <!-- Lune décorative -->
+              <div class="absolute top-3 right-4 text-3xl animate-moon-glow">🌙</div>
+              
+              <!-- Z flottants (effet de sommeil) -->
+              <div class="absolute top-12 right-10 text-blue-300/50 text-lg font-black animate-z-float" style="animation-delay: 0s;">z</div>
+              <div class="absolute top-12 right-10 text-blue-300/50 text-base font-black animate-z-float" style="animation-delay: 1s;">z</div>
+              <div class="absolute top-12 right-10 text-blue-300/50 text-sm font-black animate-z-float" style="animation-delay: 2s;">z</div>
+
+              <div class="relative">
+                <!-- Label -->
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="bg-blue-500/20 rounded-full px-3 py-1 border border-blue-400/40">
+                    <span class="text-blue-300 text-[10px] font-black tracking-widest">TES HEURES DE SOMMEIL</span>
+                  </div>
+                </div>
+
+                <!-- LES DEUX SÉLECTEURS D'HEURE -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  
+                  <!-- COUCHER -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-3 border-2 border-indigo-500/30">
+                    <div class="flex items-center justify-center gap-1.5 mb-2">
+                      <span class="text-lg">🛏️</span>
+                      <span class="text-blue-300 text-[10px] font-black tracking-widest">COUCHER</span>
+                    </div>
+                    
+                    <!-- Sélecteur Heure:Minute -->
+                    <div class="flex items-center justify-center gap-1">
+                      <!-- Heures -->
+                      <div class="flex flex-col items-center">
+                        <button onclick="adjustTime('bedtime', 'hour', 1)" class="time-btn w-8 h-7 bg-blue-500/30 hover:bg-blue-500/50 active:bg-blue-500/70 rounded-lg flex items-center justify-center border border-blue-400/30">
+                          <i data-lucide="chevron-up" class="w-4 h-4 text-blue-200" stroke-width="3.5"></i>
+                        </button>
+                        <div class="my-1 px-1">
+                          <span id="bedtime-hour" class="text-white font-black text-2xl tracking-tight">21</span>
+                        </div>
+                        <button onclick="adjustTime('bedtime', 'hour', -1)" class="time-btn w-8 h-7 bg-blue-500/30 hover:bg-blue-500/50 active:bg-blue-500/70 rounded-lg flex items-center justify-center border border-blue-400/30">
+                          <i data-lucide="chevron-down" class="w-4 h-4 text-blue-200" stroke-width="3.5"></i>
+                        </button>
+                      </div>
+                      
+                      <span class="text-blue-300 font-black text-2xl mx-0.5">:</span>
+                      
+                      <!-- Minutes -->
+                      <div class="flex flex-col items-center">
+                        <button onclick="adjustTime('bedtime', 'minute', 15)" class="time-btn w-8 h-7 bg-blue-500/30 hover:bg-blue-500/50 active:bg-blue-500/70 rounded-lg flex items-center justify-center border border-blue-400/30">
+                          <i data-lucide="chevron-up" class="w-4 h-4 text-blue-200" stroke-width="3.5"></i>
+                        </button>
+                        <div class="my-1 px-1">
+                          <span id="bedtime-minute" class="text-white font-black text-2xl tracking-tight">30</span>
+                        </div>
+                        <button onclick="adjustTime('bedtime', 'minute', -15)" class="time-btn w-8 h-7 bg-blue-500/30 hover:bg-blue-500/50 active:bg-blue-500/70 rounded-lg flex items-center justify-center border border-blue-400/30">
+                          <i data-lucide="chevron-down" class="w-4 h-4 text-blue-200" stroke-width="3.5"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- RÉVEIL -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-3 border-2 border-cyan-500/30">
+                    <div class="flex items-center justify-center gap-1.5 mb-2">
+                      <span class="text-lg">☀️</span>
+                      <span class="text-cyan-300 text-[10px] font-black tracking-widest">RÉVEIL</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-center gap-1">
+                      <div class="flex flex-col items-center">
+                        <button onclick="adjustTime('waketime', 'hour', 1)" class="time-btn w-8 h-7 bg-cyan-500/30 hover:bg-cyan-500/50 active:bg-cyan-500/70 rounded-lg flex items-center justify-center border border-cyan-400/30">
+                          <i data-lucide="chevron-up" class="w-4 h-4 text-cyan-200" stroke-width="3.5"></i>
+                        </button>
+                        <div class="my-1 px-1">
+                          <span id="waketime-hour" class="text-white font-black text-2xl tracking-tight">07</span>
+                        </div>
+                        <button onclick="adjustTime('waketime', 'hour', -1)" class="time-btn w-8 h-7 bg-cyan-500/30 hover:bg-cyan-500/50 active:bg-cyan-500/70 rounded-lg flex items-center justify-center border border-cyan-400/30">
+                          <i data-lucide="chevron-down" class="w-4 h-4 text-cyan-200" stroke-width="3.5"></i>
+                        </button>
+                      </div>
+                      
+                      <span class="text-cyan-300 font-black text-2xl mx-0.5">:</span>
+                      
+                      <div class="flex flex-col items-center">
+                        <button onclick="adjustTime('waketime', 'minute', 15)" class="time-btn w-8 h-7 bg-cyan-500/30 hover:bg-cyan-500/50 active:bg-cyan-500/70 rounded-lg flex items-center justify-center border border-cyan-400/30">
+                          <i data-lucide="chevron-up" class="w-4 h-4 text-cyan-200" stroke-width="3.5"></i>
+                        </button>
+                        <div class="my-1 px-1">
+                          <span id="waketime-minute" class="text-white font-black text-2xl tracking-tight">00</span>
+                        </div>
+                        <button onclick="adjustTime('waketime', 'minute', -15)" class="time-btn w-8 h-7 bg-cyan-500/30 hover:bg-cyan-500/50 active:bg-cyan-500/70 rounded-lg flex items-center justify-center border border-cyan-400/30">
+                          <i data-lucide="chevron-down" class="w-4 h-4 text-cyan-200" stroke-width="3.5"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TOTAL DE SOMMEIL (affichage dynamique) -->
+                <div class="relative">
+                  <div class="bg-gradient-to-br from-blue-900/80 to-indigo-900/80 backdrop-blur-md rounded-2xl p-4 border-2 border-blue-400/40 animate-total-glow">
+                    <div class="flex items-center justify-center gap-3">
+                      <div class="text-3xl animate-float-gentle">💤</div>
+                      <div class="text-center">
+                        <p class="text-blue-200/70 text-[10px] font-black tracking-widest mb-0.5">TU AS DORMI</p>
+                        <p class="font-black">
+                          <span id="total-sleep" class="text-4xl text-transparent bg-clip-text bg-gradient-to-br from-cyan-200 via-blue-300 to-indigo-300 text-stroke">9h30</span>
+                        </p>
+                        <p id="sleep-feedback" class="text-blue-300 text-[11px] font-black tracking-wide mt-0.5">✨ Belle nuit complète !</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== 3. ZONE QUALITATIVE - LE RESSENTI ====== -->
+        <div class="mt-5 animate-slide-up" style="animation-delay: 0.6s;">
+          <p class="text-white/80 text-sm font-black tracking-tight text-center mb-3">
+            Comment t'es-tu réveillé(e) ce matin ?
+          </p>
+          
+          <div class="grid grid-cols-3 gap-2.5">
+            
+            <!-- Fatigué -->
+            <button onclick="selectMood('tired', this)" class="mood-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="mood-card relative bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-3 border-2 border-slate-600/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">🥱</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">FATIGUÉ(E)</span>
+              </div>
+            </button>
+
+            <!-- Correct -->
+            <button onclick="selectMood('ok', this)" class="mood-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="mood-card relative bg-gradient-to-br from-blue-700 to-blue-800 rounded-2xl p-3 border-2 border-blue-600/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">🙂</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">CORRECT</span>
+              </div>
+            </button>
+
+            <!-- En forme -->
+            <button onclick="selectMood('great', this)" class="mood-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-yellow-900 rounded-2xl translate-y-1.5"></div>
+              <div class="mood-card relative bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl p-3 border-2 border-amber-400/40 flex flex-col items-center gap-1">
+                <span class="text-4xl">⚡</span>
+                <span class="text-white/90 text-[11px] font-black tracking-wide">EN FORME</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Petit message d'honnêteté -->
+        <div class="mt-4 mb-2 animate-slide-up" style="animation-delay: 0.75s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              💤 Bien dormir, c'est <span class="text-blue-400">recharger ton cerveau</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 4. PIED DE PAGE ====== -->
+      <div class="flex-shrink-0 px-5 pb-6 pt-3">
+        <div class="animate-slide-up" style="animation-delay: 0.85s;">
+          <button id="continue-btn" onclick="goToNext()" class="continue-btn-disabled relative block w-full btn-3d transition-opacity duration-300">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-3xl translate-y-2"></div>
+            
+            <div class="shine-effect relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-3xl px-6 py-5 border-2 border-blue-300/50 overflow-hidden"
+                 style="box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);">
+              
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+              
+              <div class="relative flex items-center justify-center gap-2">
+                <span class="text-white font-black text-xl tracking-wide text-stroke">Continuer</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 text-white" stroke-width="3.5"></i>
+              </div>
+              
+              <div class="relative flex justify-center mt-1">
+                <span class="text-blue-100 text-[10px] font-bold tracking-widest">PROCHAINE ÉTAPE : GESTION DU STRESS 🧘</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div class="flex justify-center mt-3">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    // États initiaux
+    let bedtime = { hour: 21, minute: 30 };
+    let waketime = { hour: 7, minute: 0 };
+    let selectedMood = null;
+    
+    // Ajustement des heures avec les boutons +/-
+    function adjustTime(target, unit, delta) {
+      const t = (target === 'bedtime') ? bedtime : waketime;
+      
+      if (unit === 'hour') {
+        t.hour = (t.hour + delta + 24) % 24;
+      } else {
+        t.minute += delta;
+        // Gestion du débordement des minutes (modulo 60 avec cascade vers les heures)
+        while (t.minute >= 60) { t.minute -= 60; t.hour = (t.hour + 1) % 24; }
+        while (t.minute < 0) { t.minute += 60; t.hour = (t.hour - 1 + 24) % 24; }
+      }
+      
+      // Mise à jour de l'affichage avec animation
+      const hourEl = document.getElementById(target + '-hour');
+      const minEl = document.getElementById(target + '-minute');
+      hourEl.textContent = String(t.hour).padStart(2, '0');
+      minEl.textContent = String(t.minute).padStart(2, '0');
+      
+      // Petite animation pop sur le chiffre changé
+      const animEl = (unit === 'hour') ? hourEl : minEl;
+      animEl.classList.remove('animate-number-pop');
+      void animEl.offsetWidth;
+      animEl.classList.add('animate-number-pop');
+      
+      updateTotalSleep();
+    }
+    
+    // Calcul du total de sommeil (gère le passage de minuit)
+    function updateTotalSleep() {
+      let bedMinutes = bedtime.hour * 60 + bedtime.minute;
+      let wakeMinutes = waketime.hour * 60 + waketime.minute;
+      
+      // Si le réveil est avant le coucher (cas normal : 21h30 → 7h00 le lendemain)
+      let totalMinutes;
+      if (wakeMinutes <= bedMinutes) {
+        totalMinutes = (24 * 60 - bedMinutes) + wakeMinutes;
+      } else {
+        // Cas inhabituel : coucher après minuit, réveil le même jour
+        totalMinutes = wakeMinutes - bedMinutes;
+      }
+      
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      
+      const totalEl = document.getElementById('total-sleep');
+      totalEl.textContent = minutes === 0 ? `${hours}h` : `${hours}h${String(minutes).padStart(2, '0')}`;
+      
+      // Animation pop
+      totalEl.classList.remove('animate-number-pop');
+      void totalEl.offsetWidth;
+      totalEl.classList.add('animate-number-pop');
+      
+      // Feedback contextuel sans jugement (respect Zimmerman)
+      const feedbackEl = document.getElementById('sleep-feedback');
+      let feedback = '';
+      if (totalMinutes < 6 * 60) {
+        feedback = '🌱 C\'est court, ton corps mérite plus';
+      } else if (totalMinutes < 8 * 60) {
+        feedback = '👌 Pas mal, mais tu peux mieux';
+      } else if (totalMinutes < 10 * 60) {
+        feedback = '✨ Belle nuit complète !';
+      } else if (totalMinutes < 12 * 60) {
+        feedback = '🌟 Super reposé(e), bravo !';
+      } else {
+        feedback = '😴 Beaucoup de sommeil, tu dois en avoir besoin';
+      }
+      feedbackEl.textContent = feedback;
+    }
+    
+    // Sélection du ressenti
+    function selectMood(mood, btn) {
+      selectedMood = mood;
+      
+      document.querySelectorAll('.mood-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.classList.add('has-selection');
+      });
+      btn.classList.add('selected');
+      btn.classList.remove('has-selection');
+      
+      // Active le bouton continuer
+      const continueBtn = document.getElementById('continue-btn');
+      continueBtn.classList.remove('continue-btn-disabled');
+      continueBtn.classList.add('continue-btn-enabled');
+    }
+    
+    function goToNext() {
+      if (selectedMood === null) return;
+      
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.3';
+      setTimeout(() => {
+        window.location.href = 'journal-emotions.html';
+      }, 300);
+    }
+  </script>
+</body>
+</html>

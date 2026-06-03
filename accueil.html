@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Accueil</title>
+  
+  <!-- Tailwind CSS via CDN (pas d'installation nécessaire) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Police Nunito (style Duolingo) + icônes Lucide -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(-2deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    @keyframes flame-flicker {
+      0%, 100% { transform: scale(1) rotate(-3deg); filter: brightness(1); }
+      25% { transform: scale(1.08) rotate(2deg); filter: brightness(1.15); }
+      50% { transform: scale(0.95) rotate(-2deg); filter: brightness(0.95); }
+      75% { transform: scale(1.05) rotate(3deg); filter: brightness(1.1); }
+    }
+    @keyframes sparkle-spin {
+      0% { transform: rotate(0deg) scale(1); opacity: 0.8; }
+      50% { transform: rotate(180deg) scale(1.2); opacity: 1; }
+      100% { transform: rotate(360deg) scale(1); opacity: 0.8; }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce-in {
+      0% { opacity: 0; transform: scale(0.5); }
+      60% { opacity: 1; transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes orbit {
+      from { transform: rotate(0deg) translateX(95px) rotate(0deg); }
+      to { transform: rotate(360deg) translateX(95px) rotate(-360deg); }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-flame { animation: flame-flicker 1.4s ease-in-out infinite; transform-origin: bottom center; display: inline-block; }
+    .animate-sparkle { animation: sparkle-spin 3s linear infinite; }
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-bounce-in { animation: bounce-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    .animate-orbit { animation: orbit 8s linear infinite; }
+    .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+    
+    .shimmer-bar {
+      background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 25%, #f97316 50%, #8b5cf6 75%, #3b82f6 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+    
+    .text-stroke {
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Bouton 3D : effet d'enfoncement au clic */
+    .btn-3d {
+      position: relative;
+      transition: transform 0.1s ease;
+    }
+    .btn-3d:active {
+      transform: translateY(8px);
+    }
+    .btn-3d:active .btn-shadow {
+      opacity: 0;
+    }
+    
+    /* Animation de la barre XP au chargement */
+    .xp-bar {
+      width: 0%;
+      transition: width 1.5s ease-out;
+    }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE DE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(139, 92, 246, 0.3), 0 30px 60px -30px rgba(59, 130, 246, 0.4);">
+    
+    <!-- ====== FOND ANTHRACITE / BLEU NUIT ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0f1424 0%, #161b2e 50%, #1a1330 100%);">
+      <!-- Halos colorés d'ambiance -->
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Texture pointillée subtile -->
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU PRINCIPAL (padding-bottom suffisant pour ne pas être caché par la nav fixe) ====== -->
+    <div class="relative h-full overflow-y-auto" style="padding-bottom: 110px;">
+      
+      <!-- Notch iPhone simulé -->
+      <div class="flex justify-center pt-3 pb-2">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE : NIVEAU + STREAK ====== -->
+      <div class="px-5 pt-3 pb-2 flex justify-between items-center">
+        
+        <!-- Badge Niveau (gauche) -->
+        <div class="animate-bounce-in" style="animation-delay: 0.1s;">
+          <div class="relative btn-3d cursor-pointer">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-2xl px-4 py-2.5 flex items-center gap-2 border-2 border-blue-300/40">
+              <div class="relative">
+                <i data-lucide="star" class="w-5 h-5 text-yellow-300" style="fill: #fde047;"></i>
+                <i data-lucide="sparkles" class="absolute -top-1 -right-1 w-3 h-3 text-yellow-200 animate-sparkle"></i>
+              </div>
+              <span class="text-white font-black text-sm tracking-wide text-stroke">NIVEAU 5</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compteur de Série (droite) -->
+        <div class="animate-bounce-in" style="animation-delay: 0.2s;">
+          <div class="relative btn-3d cursor-pointer">
+            <div class="btn-shadow absolute inset-0 bg-orange-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 rounded-2xl px-4 py-2.5 flex items-center gap-2 border-2 border-orange-300/40">
+              <span class="text-2xl animate-flame">🔥</span>
+              <span class="text-white font-black text-sm tracking-wide text-stroke">12 JOURS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2. ZONE CENTRALE : AVATAR + XP ====== -->
+      <div class="px-5 mt-6 mb-7">
+        <div class="flex flex-col items-center">
+          
+          <!-- Avatar avec orbites -->
+          <div class="relative animate-slide-up" style="animation-delay: 0.35s;">
+            <!-- Anneau orbital pointillé -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-[200px] h-[200px] rounded-full border-2 border-dashed border-purple-400/20 animate-spin-slow"></div>
+            </div>
+            
+            <!-- Étoile en orbite -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+              <div class="animate-orbit">
+                <div class="w-3 h-3 bg-yellow-300 rounded-full" style="box-shadow: 0 0 12px rgba(253, 224, 71, 0.6);"></div>
+              </div>
+            </div>
+
+            <!-- Cercle d'avatar -->
+            <div class="relative">
+              <div class="absolute -inset-4 bg-gradient-to-br from-blue-500 via-purple-500 to-orange-400 rounded-full blur-xl opacity-60"></div>
+              
+              <div class="relative w-44 h-44 rounded-full p-1.5 bg-gradient-to-br from-blue-400 via-purple-500 to-orange-400">
+                <div class="w-full h-full rounded-full bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-700 flex items-center justify-center relative overflow-hidden border-4 border-zinc-900/50">
+                  <div class="absolute top-2 left-4 w-12 h-8 bg-white/20 rounded-full blur-md"></div>
+                  <span class="text-8xl animate-float select-none" style="filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));">🦊</span>
+                </div>
+              </div>
+
+              <!-- Badge "RENARD" sous l'avatar -->
+              <div class="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                <div class="relative">
+                  <div class="absolute inset-0 bg-purple-900 rounded-full translate-y-1"></div>
+                  <div class="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-full px-3 py-1 border-2 border-purple-300/50">
+                    <span class="text-white font-black text-xs tracking-wider text-stroke">MAYA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barre XP -->
+          <div class="w-full mt-7 animate-slide-up" style="animation-delay: 0.5s;">
+            <div class="flex justify-between items-center mb-2 px-1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-4 h-4 text-yellow-400" style="fill: #facc15;"></i>
+                <span class="text-yellow-300 font-black text-sm tracking-wide">XP</span>
+              </div>
+              <span class="text-white font-black text-sm">
+                <span class="text-yellow-300">250</span>
+                <span class="text-white/40 mx-1">/</span>
+                <span class="text-white/70">500</span>
+              </span>
+            </div>
+
+            <!-- Track de la barre -->
+            <div class="relative h-5 bg-zinc-900/80 rounded-full overflow-hidden border-2 border-zinc-700/50" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+              <div id="xp-progress" class="xp-bar h-full shimmer-bar rounded-full relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-white/40 rounded-full"></div>
+                <div class="absolute inset-0 flex items-center justify-end pr-2">
+                  <i data-lucide="sparkles" class="w-3 h-3 text-white animate-sparkle"></i>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-center text-white/50 text-xs mt-2 font-bold tracking-wide">
+              Plus que <span class="text-orange-400">250 XP</span> avant le niveau 6 !
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 3. ZONE D'ACTIONS ====== -->
+      <div class="px-5 space-y-4">
+        
+        <!-- CARTE 1 : JOURNAL EXPRESS (active) -->
+        <div class="animate-slide-up" style="animation-delay: 0.65s;">
+          <a href="journal-activite.html" class="block btn-3d w-full text-left">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-3xl translate-y-2"></div>
+            
+            <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-3xl p-5 border-2 border-blue-300/40 overflow-hidden"
+                 style="box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">
+              
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div class="absolute top-2 right-3 text-blue-200/30 text-[120px] font-black select-none leading-none">✏</div>
+
+              <div class="relative flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-3xl">📝</span>
+                    <h3 class="text-white font-black text-xl tracking-tight text-stroke leading-tight">
+                      Mon Journal<br>Express
+                    </h3>
+                  </div>
+                  
+                  <div class="inline-flex items-center gap-1.5 mt-2 bg-yellow-400 rounded-full px-3 py-1 border-2 border-yellow-300" style="box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-yellow-900" style="fill: #713f12;"></i>
+                    <span class="text-yellow-900 font-black text-xs tracking-wide">+50 XP AUJOURD'HUI</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="absolute top-3 right-3 flex items-center gap-1">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" style="box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);"></div>
+                <span class="text-green-300 text-[10px] font-black tracking-wider">DISPO</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- CARTE 2 : DÉFI DU JOUR (verrouillée) -->
+        <div class="animate-slide-up" style="animation-delay: 0.8s;">
+          <div class="relative w-full text-left cursor-not-allowed">
+            <div class="absolute inset-0 bg-purple-950/80 rounded-3xl translate-y-2"></div>
+            
+            <div class="relative bg-gradient-to-br from-zinc-800 via-purple-950/80 to-zinc-900 rounded-3xl p-5 border-2 border-purple-800/40 overflow-hidden">
+              
+              <div class="absolute inset-0 opacity-30"
+                   style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139, 92, 246, 0.1) 10px, rgba(139, 92, 246, 0.1) 20px);"></div>
+              
+              <div class="absolute top-2 right-3 text-purple-700/20 text-[120px] font-black select-none leading-none">🎯</div>
+
+              <div class="relative flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-3xl grayscale opacity-70">🎯</span>
+                    <h3 class="text-white/60 font-black text-xl tracking-tight leading-tight">
+                      Mon Défi<br>du Jour
+                    </h3>
+                  </div>
+                  <p class="text-purple-300/70 text-xs font-bold mt-2 leading-snug">
+                    Remplis ton journal<br>pour le débloquer
+                  </p>
+                </div>
+              </div>
+
+              <div class="absolute top-3 left-3">
+                <div class="bg-purple-900/80 backdrop-blur-sm rounded-full px-2.5 py-0.5 border border-purple-600/50">
+                  <span class="text-purple-200 text-[10px] font-black tracking-wider">VERROUILLÉ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message d'encouragement -->
+      <div class="px-5 mt-5 animate-slide-up" style="animation-delay: 0.95s;">
+        <div class="text-center">
+          <p class="text-white/40 text-xs font-bold tracking-wide">
+            💪 Tu fais ça pour <span class="text-orange-400">toi</span>, pas pour les points.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 4. NAVIGATION FIXE BAS ====== -->
+    <div class="absolute bottom-0 left-0 right-0">
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0f1424] via-[#0f1424]/95 to-transparent backdrop-blur-md h-24 -top-6"></div>
+      
+      <div class="relative px-5 pb-4 pt-2">
+        <div class="bg-zinc-900/90 backdrop-blur-xl rounded-3xl border-2 border-zinc-800" style="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+          <div class="grid grid-cols-3 gap-1 p-2">
+            
+            <!-- Accueil (actif) -->
+            <a href="accueil.html" class="relative flex flex-col items-center justify-center py-2.5">
+              <div class="absolute inset-1 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl" style="box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);"></div>
+              <div class="relative flex flex-col items-center">
+                <i data-lucide="home" class="w-6 h-6 text-white" stroke-width="2.5" style="fill: white;"></i>
+                <span class="text-white text-[10px] font-black tracking-wider mt-0.5">ACCUEIL</span>
+              </div>
+              <div class="absolute -top-0.5 right-2 w-2 h-2 bg-orange-400 rounded-full border border-zinc-900"></div>
+            </a>
+
+            <!-- Stats -->
+            <a href="stats.html" class="flex flex-col items-center justify-center py-2.5 hover:bg-white/5 rounded-2xl transition-colors">
+              <i data-lucide="bar-chart-3" class="w-6 h-6 text-zinc-500" stroke-width="2.5"></i>
+              <span class="text-zinc-500 text-[10px] font-black tracking-wider mt-0.5">STATS</span>
+            </a>
+
+            <!-- Vestiaire -->
+            <a href="vestiaire.html" class="flex flex-col items-center justify-center py-2.5 hover:bg-white/5 rounded-2xl transition-colors relative">
+              <i data-lucide="shirt" class="w-6 h-6 text-zinc-500" stroke-width="2.5"></i>
+              <span class="text-zinc-500 text-[10px] font-black tracking-wider mt-0.5">VESTIAIRE</span>
+              <div class="absolute top-1 right-3 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center border border-zinc-900">
+                <span class="text-white text-[8px] font-black">3</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Indicateur swipe iOS -->
+        <div class="flex justify-center mt-2">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialisation des icônes Lucide
+    lucide.createIcons();
+    
+    // Animation de remplissage de la barre XP au chargement
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('xp-progress').style.width = '50%';
+      }, 400);
+    });
+  </script>
+</body>
+</html>

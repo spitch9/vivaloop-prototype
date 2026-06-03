@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Tableau de Bord Enseignant</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+      50% { box-shadow: 0 0 14px rgba(34, 197, 94, 0.8); }
+    }
+    @keyframes pulse-yellow {
+      0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
+      50% { box-shadow: 0 0 14px rgba(251, 191, 36, 0.8); }
+    }
+    @keyframes pulse-orange {
+      0%, 100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.5); }
+      50% { box-shadow: 0 0 14px rgba(249, 115, 22, 0.8); }
+    }
+    @keyframes shine-sweep {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(15deg); }
+      75% { transform: rotate(-10deg); }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-down { animation: slide-down 0.5s ease-out backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-pulse-green { animation: pulse-green 2s ease-in-out infinite; }
+    .animate-pulse-yellow { animation: pulse-yellow 2s ease-in-out infinite; }
+    .animate-pulse-orange { animation: pulse-orange 2s ease-in-out infinite; }
+    .animate-wave { animation: wave 1.5s ease-in-out infinite; transform-origin: 70% 70%; display: inline-block; }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    .text-stroke-strong { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(4px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* Carte de groupe au survol */
+    .group-card { transition: transform 0.2s ease; }
+    .group-card:hover .card-inner { transform: translateY(-2px); }
+    .card-inner { transition: transform 0.2s ease; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(20, 184, 166, 0.3), 0 30px 60px -30px rgba(59, 130, 246, 0.4);">
+    
+    <!-- ====== FOND ANTHRACITE / CYAN-TEAL (univers enseignant froid/pro) ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a1424 0%, #0e1e2e 50%, #0e2230 100%);">
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl"></div>
+      
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE - SALUTATION PERSONNALISÉE ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <!-- Date + bouton déconnexion -->
+        <div class="flex justify-between items-center mb-2 animate-slide-down" style="animation-delay: 0.05s;">
+          <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-0.5 border border-white/10">
+            <span class="text-white/60 text-[10px] font-black tracking-widest">MERCREDI · 29 AVRIL</span>
+          </div>
+          
+          <!-- Bouton déconnexion (retour à la page de connexion) -->
+          <a href="connexion.html" class="bg-zinc-900/60 backdrop-blur-sm rounded-full p-1.5 border border-white/10 hover:bg-zinc-800/80 transition-colors">
+            <i data-lucide="log-out" class="w-3.5 h-3.5 text-white/60" stroke-width="2.5"></i>
+          </a>
+        </div>
+
+        <!-- Salutation principale -->
+        <div class="animate-slide-down flex items-center gap-3" style="animation-delay: 0.15s;">
+          
+          <!-- Avatar enseignant -->
+          <div class="flex-shrink-0">
+            <div class="relative">
+              <div class="absolute inset-0 bg-cyan-400/40 rounded-full blur-md"></div>
+              <div class="relative w-12 h-12 rounded-full p-0.5 bg-gradient-to-br from-cyan-300 via-blue-400 to-teal-500">
+                <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center border-2 border-cyan-300/30">
+                  <span class="text-2xl select-none">👨‍🏫</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Texte -->
+          <div class="flex-1 min-w-0">
+            <h1 class="text-white font-black text-xl tracking-tight text-stroke leading-tight">
+              Bonjour M. Martin <span class="animate-wave inline-block">👋</span>
+            </h1>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <div class="bg-cyan-500/20 rounded-full px-2 py-0.5 border border-cyan-400/30">
+                <span class="text-cyan-300 text-[9px] font-black tracking-widest">ENSEIGNANT EPS</span>
+              </div>
+              <span class="text-white/40 text-[10px] font-bold">· École Saint-Exupéry</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== CONTENU SCROLLABLE ====== -->
+      <div class="flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
+        
+        <!-- ====== 2. RÉSUMÉ GLOBAL DE L'ÉCOLE (VUE MACRO) ====== -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-zinc-900 rounded-3xl translate-y-1.5"></div>
+            
+            <div class="relative bg-gradient-to-br from-blue-900/60 via-cyan-900/40 to-teal-900/40 backdrop-blur-sm rounded-3xl p-4 border-2 border-cyan-500/20 overflow-hidden">
+              
+              <!-- Décorations -->
+              <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-400/15 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-400/15 rounded-full blur-2xl"></div>
+
+              <div class="relative">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 class="text-white font-black text-base tracking-tight">
+                      Synthèse des <span class="text-cyan-300">6 groupes</span>
+                    </h2>
+                    <p class="text-white/50 text-[10px] font-bold tracking-wide mt-0.5">CETTE SEMAINE</p>
+                  </div>
+                  <!-- Indicateur global feu de circulation -->
+                  <div class="flex flex-col items-center">
+                    <div class="relative">
+                      <div class="w-3 h-3 bg-amber-400 rounded-full animate-pulse-yellow"></div>
+                    </div>
+                    <span class="text-amber-300 text-[9px] font-black tracking-widest mt-1">MOYEN</span>
+                  </div>
+                </div>
+
+                <!-- 3 chiffres clés -->
+                <div class="grid grid-cols-3 gap-2">
+                  
+                  <!-- Élèves suivis -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-2.5 border border-white/5 text-center">
+                    <p class="text-cyan-300 font-black text-2xl text-stroke">152</p>
+                    <p class="text-white/60 text-[9px] font-black tracking-wider mt-0.5">ÉLÈVES</p>
+                  </div>
+
+                  <!-- Assiduité journal -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-2.5 border border-white/5 text-center">
+                    <p class="text-emerald-300 font-black text-2xl text-stroke">87%</p>
+                    <p class="text-white/60 text-[9px] font-black tracking-wider mt-0.5">ASSIDUITÉ</p>
+                  </div>
+
+                  <!-- Défis acceptés -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-2.5 border border-white/5 text-center">
+                    <p class="text-amber-300 font-black text-2xl text-stroke">71%</p>
+                    <p class="text-white/60 text-[9px] font-black tracking-wider mt-0.5">DÉFIS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== 3. GRILLE DES 6 GROUPES ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.4s;">
+          
+          <!-- Titre de section -->
+          <div class="flex items-center justify-between mb-2.5 px-1">
+            <h2 class="text-white font-black text-sm tracking-tight">
+              Liste des groupes
+            </h2>
+            <button class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2.5 py-0.5 border border-white/10 flex items-center gap-1">
+              <i data-lucide="filter" class="w-3 h-3 text-white/60" stroke-width="2.5"></i>
+              <span class="text-white/60 text-[10px] font-black tracking-wider">FILTRER</span>
+            </button>
+          </div>
+
+          <!-- Grille 2×3 -->
+          <div class="grid grid-cols-2 gap-2.5">
+            
+            <!-- GROUPE 3A : VERT (excellent) -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.5s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-emerald-500/40 overflow-hidden">
+                
+                <!-- Header carte -->
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">3A</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">3E ANNÉE</p>
+                  </div>
+                  <!-- Feu de circulation -->
+                  <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-green flex-shrink-0"></div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">22</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-emerald-300 font-black text-[11px]">95%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <!-- GROUPE 3B : JAUNE (correct) -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.55s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-amber-500/40 overflow-hidden">
+                
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">3B</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">3E ANNÉE</p>
+                  </div>
+                  <div class="w-2.5 h-2.5 bg-amber-400 rounded-full animate-pulse-yellow flex-shrink-0"></div>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">24</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-amber-300 font-black text-[11px]">82%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <!-- GROUPE 4A : VERT (très bon) -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.6s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-emerald-500/40 overflow-hidden">
+                
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">4A</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">4E ANNÉE</p>
+                  </div>
+                  <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-green flex-shrink-0"></div>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">25</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-emerald-300 font-black text-[11px]">91%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <!-- GROUPE 5A : JAUNE avec alerte pilier -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.65s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-amber-500/40 overflow-hidden">
+                
+                <!-- Petit badge alerte pilier -->
+                <div class="absolute top-1 right-1">
+                  <div class="bg-orange-500/30 rounded-md px-1 py-0 border border-orange-400/50 flex items-center gap-0.5">
+                    <span class="text-[9px]">📱</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-2 mr-5">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">5A</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">5E ANNÉE</p>
+                  </div>
+                  <div class="w-2.5 h-2.5 bg-amber-400 rounded-full animate-pulse-yellow flex-shrink-0"></div>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">26</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-amber-300 font-black text-[11px]">79%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <!-- GROUPE 6A : ORANGE (à surveiller) -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.7s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-orange-500/50 overflow-hidden">
+                
+                <!-- Badge alerte pilier sommeil -->
+                <div class="absolute top-1 right-1">
+                  <div class="bg-orange-500/30 rounded-md px-1 py-0 border border-orange-400/50 flex items-center gap-0.5">
+                    <span class="text-[9px]">😴</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-2 mr-5">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">6A</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">6E ANNÉE</p>
+                  </div>
+                  <div class="w-2.5 h-2.5 bg-orange-400 rounded-full animate-pulse-orange flex-shrink-0"></div>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">28</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-orange-300 font-black text-[11px]">68%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            <!-- GROUPE 6B : VERT (excellent) -->
+            <a href="enseignant-groupe.html" class="group-card block btn-3d animate-slide-up" style="animation-delay: 0.75s;">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              
+              <div class="card-inner relative bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl p-3 border-2 border-emerald-500/40 overflow-hidden">
+                
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-white font-black text-base tracking-tight text-stroke">6B</p>
+                    <p class="text-white/40 text-[9px] font-black tracking-widest">6E ANNÉE</p>
+                  </div>
+                  <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-green flex-shrink-0"></div>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Élèves</span>
+                    <span class="text-white font-black text-[11px]">27</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/60 text-[10px] font-bold">Journal</span>
+                    <span class="text-emerald-300 font-black text-[11px]">93%</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+          </div>
+
+          <!-- Légende des feux de circulation -->
+          <div class="mt-3 bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-2.5 border border-white/5">
+            <div class="flex items-center justify-around text-[10px] font-black tracking-wide">
+              <div class="flex items-center gap-1.5">
+                <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                <span class="text-white/60">Belle énergie</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                <span class="text-white/60">À suivre</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                <span class="text-white/60">À soutenir</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== 4. ACTIVITÉ RÉCENTE ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.85s;">
+          
+          <h2 class="text-white font-black text-sm tracking-tight mb-2.5 px-1">
+            Activité récente <span class="text-cyan-300">📡</span>
+          </h2>
+
+          <div class="space-y-2">
+            
+            <!-- Activité 1 : Amélioration positive -->
+            <div class="relative bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-3 border border-emerald-500/20 overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-emerald-400"></div>
+              <div class="flex items-center gap-3">
+                <div class="flex-shrink-0 w-8 h-8 bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-400/30">
+                  <span class="text-base">📈</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-xs leading-snug">
+                    Le groupe <span class="text-emerald-300 font-black">3A</span> a amélioré son sommeil de <span class="text-emerald-300 font-black">+15%</span> cette semaine
+                  </p>
+                  <p class="text-white/40 text-[10px] font-bold mt-0.5">Il y a 2 heures</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activité 2 : Alerte assiduité -->
+            <div class="relative bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-3 border border-amber-500/20 overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-amber-400"></div>
+              <div class="flex items-center gap-3">
+                <div class="flex-shrink-0 w-8 h-8 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-400/30">
+                  <span class="text-base">⚠️</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-xs leading-snug">
+                    <span class="text-amber-300 font-black">3 élèves</span> du groupe <span class="text-amber-300 font-black">6A</span> n'ont pas rempli leur journal depuis 3 jours
+                  </p>
+                  <p class="text-white/40 text-[10px] font-bold mt-0.5">Il y a 5 heures</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activité 3 : Suggestion IA -->
+            <div class="relative bg-zinc-900/60 backdrop-blur-sm rounded-2xl p-3 border border-purple-500/20 overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-purple-400"></div>
+              <div class="flex items-center gap-3">
+                <div class="flex-shrink-0 w-8 h-8 bg-purple-500/20 rounded-xl flex items-center justify-center border border-purple-400/30">
+                  <span class="text-base">✨</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-xs leading-snug">
+                    <span class="text-purple-300 font-black">Nouvelle activité IA</span> disponible pour le pilier sommeil de 6A
+                  </p>
+                  <p class="text-white/40 text-[10px] font-bold mt-0.5">Hier</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Petit message en bas -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 1s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              💡 Clique sur un groupe pour voir le détail.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 5. NAVIGATION FIXE BAS (4 onglets pour l'enseignant) ====== -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0a1424] via-[#0a1424]/95 to-transparent backdrop-blur-md h-24 -top-6"></div>
+        
+        <div class="relative px-4 pb-4 pt-2">
+          <div class="bg-zinc-900/90 backdrop-blur-xl rounded-3xl border-2 border-zinc-800" style="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div class="grid grid-cols-4 gap-1 p-2">
+              
+              <!-- Accueil (ACTIF) -->
+              <a href="enseignant-accueil.html" class="relative flex flex-col items-center justify-center py-2">
+                <div class="absolute inset-1 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl" style="box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);"></div>
+                <div class="relative flex flex-col items-center">
+                  <i data-lucide="home" class="w-5 h-5 text-white" stroke-width="2.5" style="fill: white;"></i>
+                  <span class="text-white text-[9px] font-black tracking-wider mt-0.5">ACCUEIL</span>
+                </div>
+              </a>
+
+              <!-- Analyses -->
+              <a href="enseignant-groupe.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">GROUPES</span>
+              </a>
+
+              <!-- Laboratoire IA -->
+              <a href="enseignant-laboratoire.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors relative">
+                <i data-lucide="flask-conical" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">LABO IA</span>
+                <!-- Badge "nouveau" -->
+                <div class="absolute top-1 right-3 w-2 h-2 bg-purple-500 rounded-full border border-zinc-900"></div>
+              </a>
+
+              <!-- Récompenses -->
+              <a href="enseignant-recompenses.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="award" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">BADGES</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-center mt-2">
+            <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

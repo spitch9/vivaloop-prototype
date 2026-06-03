@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Mon Défi du Jour</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes card-reveal {
+      0% { 
+        opacity: 0;
+        transform: translateY(60px) rotateY(-30deg) scale(0.7);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(0) rotateY(15deg) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotateY(0deg) scale(1);
+      }
+    }
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0px) rotate(-1deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
+    @keyframes mascot-bounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes border-shine {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    @keyframes sparkle-twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+    }
+    @keyframes pulse-success {
+      0%, 100% { 
+        box-shadow: 
+          0 0 30px rgba(34, 197, 94, 0.6),
+          0 20px 40px rgba(34, 197, 94, 0.4);
+      }
+      50% { 
+        box-shadow: 
+          0 0 50px rgba(34, 197, 94, 0.9),
+          0 20px 60px rgba(34, 197, 94, 0.6);
+      }
+    }
+    @keyframes shine-sweep {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes aurora-shift {
+      0%, 100% { transform: translateX(-10%) translateY(-5%); }
+      33% { transform: translateX(10%) translateY(5%); }
+      66% { transform: translateX(-5%) translateY(10%); }
+    }
+    @keyframes icon-glow {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.6)); }
+      50% { filter: drop-shadow(0 0 24px rgba(251, 191, 36, 1)) drop-shadow(0 0 40px rgba(168, 85, 247, 0.5)); }
+    }
+    @keyframes ribbon-wave {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.7s ease-out backwards; }
+    .animate-slide-down { animation: slide-down 0.6s ease-out backwards; }
+    .animate-card-reveal { animation: card-reveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    .animate-card-float { animation: card-float 5s ease-in-out infinite; }
+    .animate-mascot-bounce { animation: mascot-bounce 2s ease-in-out infinite; }
+    .animate-sparkle-twinkle { animation: sparkle-twinkle 2.5s ease-in-out infinite; }
+    .animate-pulse-success { animation: pulse-success 2.5s ease-in-out infinite; }
+    .animate-aurora-shift { animation: aurora-shift 12s ease-in-out infinite; }
+    .animate-icon-glow { animation: icon-glow 2.5s ease-in-out infinite; }
+    .animate-ribbon-wave { animation: ribbon-wave 3s ease-in-out infinite; }
+    
+    /* Bordure dorée animée de la carte (effet "légendaire") */
+    .legendary-border {
+      background: linear-gradient(
+        90deg,
+        #fbbf24 0%,
+        #f59e0b 15%,
+        #fde68a 30%,
+        #fbbf24 50%,
+        #fde68a 70%,
+        #f59e0b 85%,
+        #fbbf24 100%
+      );
+      background-size: 200% 100%;
+      animation: border-shine 4s linear infinite;
+    }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shine-sweep 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    .text-stroke-strong { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(6px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* La carte holographique */
+    .holo-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .holo-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.15) 45%,
+        rgba(255, 255, 255, 0.25) 50%,
+        rgba(255, 255, 255, 0.15) 55%,
+        transparent 70%
+      );
+      pointer-events: none;
+      animation: shine-sweep 4s ease-in-out infinite;
+    }
+    
+    /* Étoiles de fond (étoiles du ciel) */
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 
+         0 50px 100px -20px rgba(168, 85, 247, 0.5), 
+         0 30px 60px -30px rgba(251, 191, 36, 0.4);">
+    
+    <!-- ====== FOND VIOLET PROFOND + AURORE ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a0418 0%, #1a0b35 30%, #2d0e4f 60%, #1a0b35 100%);">
+      
+      <!-- Aurore qui flotte (gradient mouvant) -->
+      <div class="absolute inset-0 opacity-60 animate-aurora-shift"
+           style="background: radial-gradient(ellipse at 30% 40%, rgba(168, 85, 247, 0.4), transparent 50%),
+                              radial-gradient(ellipse at 70% 60%, rgba(236, 72, 153, 0.3), transparent 50%),
+                              radial-gradient(ellipse at 50% 80%, rgba(99, 102, 241, 0.4), transparent 50%);">
+      </div>
+      
+      <!-- Halos colorés -->
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-fuchsia-600/25 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl"></div>
+      
+      <!-- ÉTOILES DU CIEL (semi-aléatoires) -->
+      <div class="star" style="top: 8%; left: 12%; animation: sparkle-twinkle 3s infinite;"></div>
+      <div class="star" style="top: 15%; left: 78%; animation: sparkle-twinkle 2.5s infinite 0.5s;"></div>
+      <div class="star" style="top: 22%; left: 25%; animation: sparkle-twinkle 4s infinite 1s;"></div>
+      <div class="star" style="top: 28%; left: 88%; animation: sparkle-twinkle 3.5s infinite 1.5s;"></div>
+      <div class="star" style="top: 38%; left: 8%; animation: sparkle-twinkle 2s infinite 0.3s;"></div>
+      <div class="star" style="top: 52%; left: 92%; animation: sparkle-twinkle 3s infinite 0.8s;"></div>
+      <div class="star" style="top: 65%; left: 15%; animation: sparkle-twinkle 2.5s infinite 1.2s;"></div>
+      <div class="star" style="top: 72%; left: 82%; animation: sparkle-twinkle 4s infinite 0.6s;"></div>
+      <div class="star" style="top: 85%; left: 35%; animation: sparkle-twinkle 3s infinite 1.8s;"></div>
+      <div class="star" style="top: 92%; left: 70%; animation: sparkle-twinkle 2s infinite 0.4s;"></div>
+      
+      <!-- Étincelles dorées plus grosses -->
+      <div class="absolute top-20 right-10 text-yellow-300/70 text-sm animate-sparkle-twinkle" style="animation-delay: 0s;">✦</div>
+      <div class="absolute top-44 left-8 text-yellow-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 0.7s;">✧</div>
+      <div class="absolute bottom-1/3 right-6 text-yellow-300/70 text-sm animate-sparkle-twinkle" style="animation-delay: 1.4s;">✦</div>
+      <div class="absolute bottom-1/4 left-10 text-yellow-300/60 text-base animate-sparkle-twinkle" style="animation-delay: 2s;">✧</div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE - LA RÉTROACTION PÉDAGOGIQUE ====== -->
+      <div class="px-5 pt-2 flex-shrink-0">
+        
+        <!-- Mascotte IA + bulle de dialogue -->
+        <div class="flex items-start gap-3 animate-slide-down" style="animation-delay: 0.1s;">
+          
+          <!-- Mascotte robot IA -->
+          <div class="flex-shrink-0">
+            <div class="relative">
+              <!-- Halo derrière la mascotte -->
+              <div class="absolute inset-0 bg-purple-400/40 rounded-full blur-xl"></div>
+              
+              <!-- Cercle de la mascotte -->
+              <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-purple-400 via-fuchsia-400 to-pink-400 animate-mascot-bounce">
+                <div class="w-full h-full rounded-full bg-gradient-to-br from-indigo-700 to-purple-900 flex items-center justify-center border-2 border-purple-300/30">
+                  <span class="text-3xl select-none">🤖</span>
+                </div>
+              </div>
+              
+              <!-- Petit indicateur "active" -->
+              <div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-purple-900" style="box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);"></div>
+            </div>
+            
+            <!-- Étiquette de la mascotte -->
+            <div class="mt-1.5 flex justify-center">
+              <span class="text-purple-300/80 text-[9px] font-black tracking-widest">VIVA · IA</span>
+            </div>
+          </div>
+          
+          <!-- Bulle de dialogue -->
+          <div class="flex-1 relative">
+            <!-- Petit triangle pointant vers la mascotte -->
+            <div class="absolute -left-2 top-4 w-0 h-0" 
+                 style="border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 10px solid rgba(168, 85, 247, 0.4);"></div>
+            
+            <div class="bg-gradient-to-br from-purple-900/90 to-indigo-900/90 backdrop-blur-md rounded-2xl rounded-tl-md p-3 border-2 border-purple-400/40"
+                 style="box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);">
+              <p class="text-white font-bold text-xs leading-snug">
+                <span class="text-amber-300 font-black">Super assiduité ! ✨</span><br>
+                J'ai remarqué que tu avais <span class="text-cyan-300 font-black">beaucoup de temps d'écran</span> hier. Voici une mission spéciale pour toi aujourd'hui :
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2. ZONE CENTRALE - LA CARTE DE DÉFI ====== -->
+      <div class="flex-1 flex items-center justify-center px-5 py-4">
+        <div class="relative w-full animate-card-reveal" style="animation-delay: 0.4s;">
+          
+          <!-- Aura magique derrière la carte -->
+          <div class="absolute -inset-6 rounded-[3rem] opacity-70"
+               style="background: radial-gradient(ellipse, rgba(168, 85, 247, 0.4), transparent 70%); filter: blur(20px);"></div>
+          
+          <!-- Étincelles autour de la carte -->
+          <div class="absolute -top-3 -left-3 text-yellow-300 text-xl animate-sparkle-twinkle" style="animation-delay: 0s;">✨</div>
+          <div class="absolute -top-2 right-6 text-yellow-300 text-base animate-sparkle-twinkle" style="animation-delay: 0.6s;">✦</div>
+          <div class="absolute top-1/2 -right-4 text-yellow-300 text-lg animate-sparkle-twinkle" style="animation-delay: 1.2s;">✧</div>
+          <div class="absolute -bottom-3 left-8 text-yellow-300 text-base animate-sparkle-twinkle" style="animation-delay: 1.8s;">✦</div>
+          <div class="absolute -bottom-2 -right-2 text-yellow-300 text-xl animate-sparkle-twinkle" style="animation-delay: 2.4s;">✨</div>
+          
+          <!-- LA CARTE TCG -->
+          <div class="relative animate-card-float">
+            
+            <!-- Bordure dorée animée (effet légendaire) -->
+            <div class="legendary-border rounded-3xl p-1">
+              
+              <!-- Intérieur de la carte avec dégradé -->
+              <div class="holo-card relative bg-gradient-to-br from-purple-700 via-fuchsia-700 to-pink-700 rounded-[1.4rem] p-5 overflow-hidden">
+                
+                <!-- Décor de fond magique -->
+                <div class="absolute top-0 right-0 w-40 h-40 bg-amber-300/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-pink-300/20 rounded-full blur-3xl"></div>
+                
+                <!-- Patterns hexagonaux subtils en background -->
+                <div class="absolute inset-0 opacity-10"
+                     style="background-image: radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 16px 16px;">
+                </div>
+                
+                <!-- ===== BANDEAU DU HAUT - RARETÉ + PILIER ===== -->
+                <div class="relative flex items-center justify-between mb-3">
+                  <!-- Étiquette "défi" + rareté -->
+                  <div class="flex items-center gap-1.5">
+                    <span class="bg-amber-400 text-amber-900 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-full border-2 border-amber-200">
+                      ⭐ ÉPIQUE
+                    </span>
+                  </div>
+                  
+                  <!-- Pilier ciblé -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2.5 py-0.5 border border-cyan-400/40">
+                    <span class="text-cyan-300 text-[9px] font-black tracking-widest">📱 ÉCRANS</span>
+                  </div>
+                </div>
+
+                <!-- ===== ICÔNE CENTRALE GIGANTESQUE ===== -->
+                <div class="relative flex justify-center mb-3">
+                  <div class="relative">
+                    <!-- Cercle lumineux derrière l'icône -->
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-amber-300/40 to-purple-300/40 blur-2xl"></div>
+                    
+                    <!-- Cercle de fond -->
+                    <div class="relative w-28 h-28 rounded-full bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-green-500/30 border-2 border-amber-300/40 flex items-center justify-center backdrop-blur-sm">
+                      <span class="text-7xl animate-icon-glow select-none">🌳</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== TITRE DU DÉFI ===== -->
+                <div class="relative text-center mb-2">
+                  <p class="text-amber-200/80 text-[10px] font-black tracking-[0.2em] mb-1">MISSION DU JOUR</p>
+                  <h2 class="text-white font-black text-2xl tracking-tight text-stroke-strong leading-tight">
+                    L'Explorateur<br>
+                    <span class="text-amber-300">Sans Écran</span>
+                  </h2>
+                </div>
+
+                <!-- Petite ligne dorée séparatrice -->
+                <div class="relative flex justify-center my-3">
+                  <div class="w-12 h-0.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
+                </div>
+
+                <!-- ===== DESCRIPTION ===== -->
+                <div class="relative bg-black/30 backdrop-blur-sm rounded-2xl p-3 border border-white/10 mb-3">
+                  <p class="text-white/95 font-bold text-xs text-center leading-relaxed">
+                    Passe <span class="text-amber-300 font-black">15 minutes dehors</span> après l'école sans toucher à ton téléphone.
+                    <br><br>
+                    <span class="text-emerald-300 font-black">Observe 3 choses</span> de la nature 🍃
+                  </p>
+                </div>
+
+                <!-- ===== RÉCOMPENSE - BANDEAU DU BAS ===== -->
+                <div class="relative flex justify-center">
+                  <div class="relative animate-ribbon-wave">
+                    <!-- Petite ombre -->
+                    <div class="absolute inset-0 bg-yellow-900 rounded-full translate-y-1"></div>
+                    
+                    <!-- Bandeau récompense -->
+                    <div class="relative bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-full px-4 py-1.5 border-2 border-amber-200 flex items-center gap-2"
+                         style="box-shadow: 0 8px 16px rgba(251, 191, 36, 0.5);">
+                      <i data-lucide="zap" class="w-4 h-4 text-amber-900" style="fill: #713f12;"></i>
+                      <span class="text-amber-900 font-black text-sm tracking-wide text-stroke">
+                        +100 XP
+                      </span>
+                      <span class="text-amber-900 text-base">🎁</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 3. PIED DE PAGE - L'ENGAGEMENT ====== -->
+      <div class="flex-shrink-0 px-5 pb-5 pt-2">
+        
+        <!-- Bouton principal "J'accepte" -->
+        <div class="animate-slide-up" style="animation-delay: 0.9s;">
+          <button onclick="accepterDefi()" class="relative block w-full btn-3d">
+            <div class="btn-shadow absolute inset-0 bg-green-900 rounded-3xl translate-y-2"></div>
+            
+            <div class="shine-effect relative bg-gradient-to-br from-green-400 via-emerald-500 to-green-600 rounded-3xl px-6 py-5 border-2 border-green-300/60 overflow-hidden animate-pulse-success">
+              
+              <!-- Halos intérieurs -->
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/30 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-8 -left-8 w-24 h-24 bg-emerald-200/30 rounded-full blur-2xl"></div>
+              
+              <div class="relative flex items-center justify-center gap-3">
+                <span class="text-white font-black text-xl tracking-wide text-stroke-strong">
+                  J'accepte le défi !
+                </span>
+                <span class="text-3xl animate-mascot-bounce">🚀</span>
+              </div>
+              
+              <!-- Petit indicateur de motivation -->
+              <div class="relative flex justify-center mt-1">
+                <span class="text-white/80 text-[10px] font-bold tracking-widest text-stroke">JE LE FAIS POUR MOI 💪</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Filet de sécurité : changer de défi -->
+        <div class="mt-3 flex justify-center animate-slide-up" style="animation-delay: 1.1s;">
+          <button onclick="changerDefi()" class="group flex items-center gap-1.5 hover:gap-2 transition-all px-3 py-1.5">
+            <i data-lucide="refresh-cw" class="w-3 h-3 text-white/40 group-hover:text-white/70 transition-colors"></i>
+            <span class="text-white/40 group-hover:text-white/70 text-[11px] font-bold tracking-wide transition-colors underline underline-offset-2">
+              Ce défi ne me convient pas
+            </span>
+            <span class="bg-zinc-800/60 text-white/40 group-hover:text-white/70 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded-md border border-white/10 transition-colors">
+              1/1
+            </span>
+          </button>
+        </div>
+
+        <!-- Indicateur swipe iOS -->
+        <div class="flex justify-center mt-3">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    function accepterDefi() {
+      // Animation de validation
+      document.body.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      document.body.style.opacity = '0.3';
+      document.body.style.transform = 'scale(1.02)';
+      
+      setTimeout(() => {
+        // En Phase 4 : sauvegarder le défi accepté + retour à l'accueil avec carte défi débloquée
+        alert('🎉 Défi accepté ! 🎉\n\nL\'Explorateur Sans Écran t\'attend dehors !\n\nReviens demain pour valider ton défi et continuer ta série. 🔥\n\n(Retour à l\'accueil avec la carte Défi maintenant active.)');
+        document.body.style.opacity = '1';
+        document.body.style.transform = 'scale(1)';
+        // Retour à l'accueil
+        window.location.href = 'accueil.html';
+      }, 500);
+    }
+    
+    function changerDefi() {
+      // En Phase 4 : nouvelle requête à l'IA pour générer un défi alternatif
+      // Pour le prototype, on simule avec un message
+      const confirmation = confirm('🔄 Changer de défi\n\nTu n\'as droit qu\'à un seul changement par jour. L\'IA va te proposer un défi différent.\n\nContinuer ?');
+      
+      if (confirmation) {
+        document.body.style.transition = 'opacity 0.4s ease';
+        document.body.style.opacity = '0.3';
+        setTimeout(() => {
+          alert('✨ Nouveau défi généré !\n\n(En Phase 4, l\'IA générera ici un défi alternatif basé sur tes données. Pour le prototype, tu peux réutiliser le même écran avec un autre défi pré-écrit.)');
+          document.body.style.opacity = '1';
+        }, 400);
+      }
+    }
+  </script>
+</body>
+</html>

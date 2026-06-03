@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Récompenses</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes badge-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5)); }
+      50% { filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.8)); }
+    }
+    @keyframes shine-sweep {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes badge-shine {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes sparkle-twinkle {
+      0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+    }
+    @keyframes send-pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.6), 0 8px 16px rgba(251, 191, 36, 0.4); }
+      50% { box-shadow: 0 0 50px rgba(251, 191, 36, 0.9), 0 8px 20px rgba(251, 191, 36, 0.6); }
+    }
+    @keyframes ribbon-wave {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-down { animation: slide-down 0.5s ease-out backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-badge-glow { animation: badge-glow 2.5s ease-in-out infinite; }
+    .animate-sparkle-twinkle { animation: sparkle-twinkle 2.5s ease-in-out infinite; }
+    .animate-send-pulse { animation: send-pulse 2.5s ease-in-out infinite; }
+    .animate-ribbon-wave { animation: ribbon-wave 3s ease-in-out infinite; }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine-sweep 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    /* Effet brillant sur badge sélectionné */
+    .badge-shine::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+      animation: badge-shine 3s ease-in-out infinite;
+      pointer-events: none;
+      border-radius: 50%;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    .text-stroke-strong { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(4px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* === MODE D'ENVOI (toggle individuel/groupe) === */
+    .mode-btn { transition: all 0.2s ease; }
+    .mode-btn.active .mode-card {
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      border-color: rgba(165, 243, 252, 0.6);
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+    }
+    .mode-btn.active .mode-emoji { transform: scale(1.15); }
+    .mode-card { transition: all 0.2s ease; }
+    .mode-emoji { transition: transform 0.2s ease; }
+    
+    /* === BADGES === */
+    .badge-btn { transition: all 0.2s ease; }
+    .badge-btn.selected .badge-card {
+      transform: scale(1.05);
+      border-color: rgba(251, 191, 36, 0.8);
+    }
+    .badge-btn.selected .badge-circle {
+      transform: scale(1.1);
+    }
+    .badge-btn:not(.selected).has-selection {
+      opacity: 0.4;
+      transform: scale(0.95);
+    }
+    .badge-card { transition: all 0.2s ease; }
+    .badge-circle { transition: transform 0.2s ease; }
+    
+    /* Bouton envoyer désactivé/activé */
+    .send-btn-disabled { opacity: 0.4; pointer-events: none; }
+    .send-btn-enabled { opacity: 1; pointer-events: auto; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(251, 191, 36, 0.3), 0 30px 60px -30px rgba(20, 184, 166, 0.3);">
+    
+    <!-- ====== FOND ANTHRACITE / DORÉ-CYAN (univers récompense) ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a1424 0%, #1a1a1f 50%, #2a2114 100%);">
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Étincelles dorées -->
+      <div class="absolute top-12 left-10 text-amber-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 0s;">✦</div>
+      <div class="absolute top-32 right-12 text-amber-300/50 text-sm animate-sparkle-twinkle" style="animation-delay: 0.7s;">✧</div>
+      <div class="absolute top-64 left-8 text-amber-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 1.4s;">✦</div>
+      <div class="absolute bottom-1/3 right-8 text-amber-300/50 text-sm animate-sparkle-twinkle" style="animation-delay: 2.1s;">✧</div>
+      
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour -->
+          <a href="enseignant-accueil.html" class="animate-slide-down btn-3d" style="animation-delay: 0.05s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <!-- Titre central -->
+          <div class="flex-1 flex justify-center animate-slide-down" style="animation-delay: 0.1s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-1.5 border border-amber-500/30 flex items-center gap-2">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Récompenses
+                <span class="text-xl animate-float-gentle inline-block">🏆</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Bouton historique -->
+          <div class="animate-slide-down" style="animation-delay: 0.15s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+                <i data-lucide="history" class="w-5 h-5 text-white" stroke-width="2.5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sous-titre -->
+        <div class="flex justify-center mt-2 animate-slide-down" style="animation-delay: 0.2s;">
+          <div class="bg-zinc-900/40 backdrop-blur-sm rounded-full px-3 py-0.5 border border-white/10">
+            <span class="text-white/60 text-[10px] font-black tracking-widest">ENVOYER UN BADGE D'ENCOURAGEMENT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== CONTENU SCROLLABLE ====== -->
+      <div class="flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 180px;">
+        
+        <!-- ====== ÉTAPE 1 : MODE D'ENVOI ====== -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="flex items-center gap-2 mb-2 px-1">
+            <div class="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
+              <span class="text-[10px] font-black text-amber-900">1</span>
+            </div>
+            <h2 class="text-white font-black text-xs tracking-widest">À QUI ?</h2>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            
+            <!-- Mode INDIVIDUEL -->
+            <button onclick="selectMode('individual', this)" class="mode-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="mode-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl py-3 px-2 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="mode-emoji text-2xl">🧑‍🎓</span>
+                <span class="text-white font-black text-[11px] tracking-tight">Un(e) élève</span>
+                <span class="text-white/50 text-[9px] font-bold">Individuel</span>
+              </div>
+            </button>
+
+            <!-- Mode GROUPE (actif par défaut) -->
+            <button onclick="selectMode('group', this)" class="mode-btn active btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="mode-card relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl py-3 px-2 border-2 border-zinc-600/40 flex flex-col items-center gap-1">
+                <span class="mode-emoji text-2xl">👨‍👩‍👧‍👦</span>
+                <span class="text-white font-black text-[11px] tracking-tight">Toute la classe</span>
+                <span class="text-white/50 text-[9px] font-bold">Collectif</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ====== ÉTAPE 2 : SÉLECTION DU GROUPE/ÉLÈVE ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="flex items-center gap-2 mb-2 px-1">
+            <div class="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
+              <span class="text-[10px] font-black text-amber-900">2</span>
+            </div>
+            <h2 class="text-white font-black text-xs tracking-widest" id="step2-title">QUEL GROUPE ?</h2>
+          </div>
+
+          <!-- Sélecteur GROUPE (visible par défaut) -->
+          <button id="selector-group" class="relative block w-full btn-3d">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative bg-gradient-to-br from-cyan-900/80 to-blue-900/80 backdrop-blur-sm rounded-2xl px-4 py-3 border-2 border-cyan-500/40 flex items-center justify-between">
+              
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-cyan-500/30 rounded-xl flex items-center justify-center border border-cyan-300/40">
+                  <span class="text-lg">👨‍👩‍👧‍👦</span>
+                </div>
+                <div class="text-left">
+                  <p class="text-cyan-300 text-[9px] font-black tracking-widest">SÉLECTIONNÉ</p>
+                  <p class="text-white font-black text-sm leading-none">Groupe 6A</p>
+                  <p class="text-white/60 text-[10px] font-bold">28 élèves</p>
+                </div>
+              </div>
+
+              <i data-lucide="chevron-down" class="w-5 h-5 text-white/60" stroke-width="2.5"></i>
+            </div>
+          </button>
+
+          <!-- Sélecteur ÉLÈVE (caché par défaut, anonymisé) -->
+          <button id="selector-individual" class="relative block w-full btn-3d hidden">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative bg-gradient-to-br from-purple-900/80 to-fuchsia-900/80 backdrop-blur-sm rounded-2xl px-4 py-3 border-2 border-purple-500/40 flex items-center justify-between">
+              
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-purple-500/30 rounded-xl flex items-center justify-center border border-purple-300/40">
+                  <span class="text-lg">🧑‍🎓</span>
+                </div>
+                <div class="text-left">
+                  <p class="text-purple-300 text-[9px] font-black tracking-widest">SÉLECTIONNÉ</p>
+                  <p class="text-white font-black text-sm leading-none">Élève #12</p>
+                  <p class="text-white/60 text-[10px] font-bold">Groupe 6A · Anonymisé 🔒</p>
+                </div>
+              </div>
+
+              <i data-lucide="chevron-down" class="w-5 h-5 text-white/60" stroke-width="2.5"></i>
+            </div>
+          </button>
+        </div>
+
+        <!-- ====== ÉTAPE 3 : CHOIX DU BADGE ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.5s;">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
+                <span class="text-[10px] font-black text-amber-900">3</span>
+              </div>
+              <h2 class="text-white font-black text-xs tracking-widest">QUEL BADGE ?</h2>
+            </div>
+            <span class="text-white/40 text-[10px] font-bold">7 disponibles</span>
+          </div>
+
+          <!-- Grille de badges 3 colonnes -->
+          <div class="grid grid-cols-3 gap-2">
+            
+            <!-- BADGE 1 : Champion d'activité -->
+            <button onclick="selectBadge('activite', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-orange-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-orange-100 via-amber-50 to-red-100 rounded-2xl p-2.5 border-2 border-orange-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 via-orange-400 to-red-500 p-1 border-2 border-amber-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center border-2 border-amber-200/60">
+                        <span class="text-xl">🏃</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-orange-900 font-black text-[9px] text-center tracking-tight leading-tight">Champion<br>d'activité</p>
+              </div>
+            </button>
+
+            <!-- BADGE 2 : Maître du sommeil -->
+            <button onclick="selectBadge('sommeil', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-blue-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-blue-100 via-cyan-50 to-indigo-100 rounded-2xl p-2.5 border-2 border-blue-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 0.3s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500 p-1 border-2 border-cyan-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center border-2 border-cyan-200/60">
+                        <span class="text-xl">💤</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-blue-900 font-black text-[9px] text-center tracking-tight leading-tight">Maître du<br>sommeil</p>
+              </div>
+            </button>
+
+            <!-- BADGE 3 : Explorateur du goût -->
+            <button onclick="selectBadge('alimentation', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-green-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-green-100 via-emerald-50 to-lime-100 rounded-2xl p-2.5 border-2 border-emerald-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 0.6s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-lime-300 via-emerald-400 to-green-500 p-1 border-2 border-lime-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-green-700 flex items-center justify-center border-2 border-lime-200/60">
+                        <span class="text-xl">🥗</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-emerald-900 font-black text-[9px] text-center tracking-tight leading-tight">Explorateur<br>du goût</p>
+              </div>
+            </button>
+
+            <!-- BADGE 4 : Zen attitude -->
+            <button onclick="selectBadge('zen', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-purple-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-purple-100 via-violet-50 to-fuchsia-100 rounded-2xl p-2.5 border-2 border-purple-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 0.9s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-fuchsia-300 via-purple-400 to-violet-500 p-1 border-2 border-fuchsia-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-violet-700 flex items-center justify-center border-2 border-fuchsia-200/60">
+                        <span class="text-xl">🧘</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-purple-900 font-black text-[9px] text-center tracking-tight leading-tight">Zen<br>attitude</p>
+              </div>
+            </button>
+
+            <!-- BADGE 5 : Équilibre numérique -->
+            <button onclick="selectBadge('numerique', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-cyan-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-cyan-100 via-teal-50 to-blue-100 rounded-2xl p-2.5 border-2 border-cyan-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 1.2s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-300 via-cyan-400 to-blue-500 p-1 border-2 border-teal-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center border-2 border-teal-200/60">
+                        <span class="text-xl">📱</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-cyan-900 font-black text-[9px] text-center tracking-tight leading-tight">Équilibre<br>numérique</p>
+              </div>
+            </button>
+
+            <!-- BADGE 6 : Étoile de la classe -->
+            <button onclick="selectBadge('etoile', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-amber-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-yellow-100 via-amber-50 to-orange-100 rounded-2xl p-2.5 border-2 border-amber-400 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 1.5s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 p-1 border-2 border-yellow-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center border-2 border-yellow-200/60">
+                        <span class="text-xl">🏆</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-amber-900 font-black text-[9px] text-center tracking-tight leading-tight">Étoile de<br>la classe</p>
+              </div>
+            </button>
+
+            <!-- BADGE 7 : Persévérance -->
+            <button onclick="selectBadge('perseverance', this)" class="badge-btn btn-3d">
+              <div class="btn-shadow absolute inset-0 bg-rose-950 rounded-2xl translate-y-1.5"></div>
+              <div class="badge-card relative bg-gradient-to-br from-rose-100 via-pink-50 to-red-100 rounded-2xl p-2.5 border-2 border-rose-300 overflow-hidden">
+                <div class="flex justify-center mb-1">
+                  <div class="badge-circle relative animate-badge-glow" style="animation-delay: 1.8s;">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-300 via-rose-400 to-red-500 p-1 border-2 border-pink-200 relative">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center border-2 border-pink-200/60">
+                        <span class="text-xl">💪</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-rose-900 font-black text-[9px] text-center tracking-tight leading-tight">Persévé-<br>rance</p>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- ====== ÉTAPE 4 : MESSAGE PERSONNALISÉ ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.6s;">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
+                <span class="text-[10px] font-black text-amber-900">4</span>
+              </div>
+              <h2 class="text-white font-black text-xs tracking-widest">MESSAGE</h2>
+            </div>
+            <span class="text-white/40 text-[10px] font-bold tracking-wide">Optionnel</span>
+          </div>
+
+          <div class="relative">
+            <textarea 
+              id="message-input"
+              maxlength="120"
+              placeholder="Ex: Bravo pour vos efforts cette semaine, vous pouvez être fiers !"
+              class="w-full bg-zinc-900/60 backdrop-blur-sm rounded-2xl border-2 border-zinc-700 hover:border-zinc-600 focus:border-amber-400/60 transition-colors p-3 pr-12 text-white text-sm font-bold placeholder-white/30 outline-none resize-none"
+              rows="3"
+              oninput="updateCharCount()"
+            ></textarea>
+            
+            <!-- Compteur de caractères -->
+            <div class="absolute bottom-2 right-3">
+              <span id="char-count" class="text-white/40 text-[10px] font-black tracking-wide">0 / 120</span>
+            </div>
+          </div>
+
+          <p class="text-white/40 text-[10px] font-bold tracking-wide mt-1.5 px-1">
+            💡 Un mot d'encouragement personnel rend le badge plus précieux.
+          </p>
+        </div>
+      </div>
+
+      <!-- ====== 5. PIED DE PAGE - BOUTON ENVOYER + NAVIGATION ====== -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0a1424] via-[#0a1424]/95 to-transparent backdrop-blur-md h-32 -top-8"></div>
+        
+        <!-- Bouton Envoyer -->
+        <div class="relative px-5 pt-2 pb-2 animate-slide-up" style="animation-delay: 0.75s;">
+          <button id="send-btn" onclick="envoyerBadge()" class="send-btn-disabled relative block w-full btn-3d transition-opacity duration-300">
+            <div class="btn-shadow absolute inset-0 bg-amber-900 rounded-2xl translate-y-2"></div>
+            
+            <div class="shine-effect relative bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-500 rounded-2xl px-5 py-3 border-2 border-amber-200/60 overflow-hidden animate-send-pulse">
+              
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/30 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-8 -left-8 w-24 h-24 bg-yellow-200/30 rounded-full blur-2xl"></div>
+              
+              <div class="relative flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-5 h-5 text-amber-900" stroke-width="3"></i>
+                <span class="text-amber-900 font-black text-base tracking-wide text-stroke">Envoyer le badge</span>
+                <span class="text-xl">🎉</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Barre de navigation -->
+        <div class="relative px-4 pb-4">
+          <div class="bg-zinc-900/90 backdrop-blur-xl rounded-3xl border-2 border-zinc-800" style="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div class="grid grid-cols-4 gap-1 p-2">
+              
+              <!-- Accueil -->
+              <a href="enseignant-accueil.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="home" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">ACCUEIL</span>
+              </a>
+
+              <!-- Groupes -->
+              <a href="enseignant-groupe.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">GROUPES</span>
+              </a>
+
+              <!-- Laboratoire IA -->
+              <a href="enseignant-laboratoire.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors relative">
+                <i data-lucide="flask-conical" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">LABO IA</span>
+                <div class="absolute top-1 right-3 w-2 h-2 bg-purple-500 rounded-full border border-zinc-900"></div>
+              </a>
+
+              <!-- Récompenses (ACTIF) -->
+              <a href="enseignant-recompenses.html" class="relative flex flex-col items-center justify-center py-2">
+                <div class="absolute inset-1 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl" style="box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.4);"></div>
+                <div class="relative flex flex-col items-center">
+                  <i data-lucide="award" class="w-5 h-5 text-white" stroke-width="2.5"></i>
+                  <span class="text-white text-[9px] font-black tracking-wider mt-0.5">BADGES</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-center mt-2">
+            <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    let selectedMode = 'group';        // 'individual' ou 'group'
+    let selectedBadge = null;          // identifiant du badge choisi
+    
+    // === Sélection du mode ===
+    function selectMode(mode, btn) {
+      selectedMode = mode;
+      
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Mise à jour du titre étape 2
+      document.getElementById('step2-title').textContent = mode === 'group' ? 'QUEL GROUPE ?' : 'QUEL(LE) ÉLÈVE ?';
+      
+      // Bascule entre les deux sélecteurs
+      const selectorGroup = document.getElementById('selector-group');
+      const selectorIndividual = document.getElementById('selector-individual');
+      
+      if (mode === 'group') {
+        selectorGroup.classList.remove('hidden');
+        selectorIndividual.classList.add('hidden');
+      } else {
+        selectorGroup.classList.add('hidden');
+        selectorIndividual.classList.remove('hidden');
+      }
+      
+      // Re-render des icônes Lucide
+      lucide.createIcons();
+    }
+    
+    // === Sélection d'un badge ===
+    function selectBadge(badgeId, btn) {
+      selectedBadge = badgeId;
+      
+      // Retire la sélection précédente
+      document.querySelectorAll('.badge-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.classList.add('has-selection');
+      });
+      
+      // Active le badge cliqué
+      btn.classList.add('selected');
+      btn.classList.remove('has-selection');
+      
+      // Active le bouton envoyer
+      const sendBtn = document.getElementById('send-btn');
+      sendBtn.classList.remove('send-btn-disabled');
+      sendBtn.classList.add('send-btn-enabled');
+    }
+    
+    // === Compteur de caractères du message ===
+    function updateCharCount() {
+      const input = document.getElementById('message-input');
+      const counter = document.getElementById('char-count');
+      counter.textContent = `${input.value.length} / 120`;
+    }
+    
+    // === Envoi du badge ===
+    function envoyerBadge() {
+      if (selectedBadge === null) return;
+      
+      // Animation de sortie
+      document.body.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      document.body.style.opacity = '0.3';
+      document.body.style.transform = 'scale(1.02)';
+      
+      setTimeout(() => {
+        const message = document.getElementById('message-input').value;
+        const destinataire = selectedMode === 'group' ? 'tout le groupe 6A' : 'l\'Élève #12 (Groupe 6A)';
+        
+        alert('🎉 Badge envoyé ! 🎉\n\nLe badge a été envoyé à ' + destinataire + '.' + (message ? '\n\nMessage : "' + message + '"' : ''));
+        
+        document.body.style.opacity = '1';
+        document.body.style.transform = 'scale(1)';
+        window.location.href = 'enseignant-accueil.html';
+      }, 400);
+    }
+  </script>
+</body>
+</html>

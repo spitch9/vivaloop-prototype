@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Laboratoire IA</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes mascot-bounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes ai-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.2); }
+    }
+    @keyframes shine-sweep {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    @keyframes sparkle-twinkle {
+      0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+    }
+    @keyframes bubble-pop {
+      0% { opacity: 0; transform: scale(0.7); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes flask-bubble {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-20px) scale(0.5); opacity: 0; }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-down { animation: slide-down 0.5s ease-out backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-mascot-bounce { animation: mascot-bounce 2s ease-in-out infinite; }
+    .animate-ai-glow { animation: ai-glow 3s ease-in-out infinite; }
+    .animate-sparkle-twinkle { animation: sparkle-twinkle 2.5s ease-in-out infinite; }
+    .animate-bubble-pop { animation: bubble-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine-sweep 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    .text-stroke-strong { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(4px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    /* Cartes d'activité au survol */
+    .activity-card-link { transition: transform 0.2s ease; }
+    .activity-card-link:hover .activity-inner { transform: translateY(-2px); }
+    .activity-inner { transition: transform 0.2s ease; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <!-- ====== CADRE TÉLÉPHONE ====== -->
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(168, 85, 247, 0.4), 0 30px 60px -30px rgba(20, 184, 166, 0.3);">
+    
+    <!-- ====== FOND ANTHRACITE / CYAN-VIOLET (univers IA) ====== -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a1424 0%, #1a1230 50%, #0e2230 100%);">
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-fuchsia-500/15 rounded-full blur-3xl"></div>
+      
+      <!-- Étincelles ambiantes IA -->
+      <div class="absolute top-12 left-10 text-amber-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 0s;">✦</div>
+      <div class="absolute top-32 right-12 text-purple-300/50 text-sm animate-sparkle-twinkle" style="animation-delay: 0.7s;">✧</div>
+      <div class="absolute top-64 left-8 text-cyan-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 1.4s;">✦</div>
+      <div class="absolute bottom-1/3 right-8 text-amber-300/50 text-sm animate-sparkle-twinkle" style="animation-delay: 2.1s;">✧</div>
+      
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <!-- ====== CONTENU ====== -->
+    <div class="relative h-full flex flex-col">
+      
+      <!-- Notch -->
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- ====== 1. EN-TÊTE CONTEXTUEL ====== -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour -->
+          <a href="enseignant-groupe.html" class="animate-slide-down btn-3d" style="animation-delay: 0.05s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <!-- Titre central -->
+          <div class="flex-1 flex justify-center animate-slide-down" style="animation-delay: 0.1s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-1.5 border border-purple-500/30 flex items-center gap-2">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Laboratoire IA
+                <span class="text-xl animate-float-gentle inline-block">🧪</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Bouton historique -->
+          <div class="animate-slide-down" style="animation-delay: 0.15s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+                <i data-lucide="history" class="w-5 h-5 text-white" stroke-width="2.5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bandeau filtre actif -->
+        <div class="flex justify-center mt-2 animate-slide-down" style="animation-delay: 0.2s;">
+          <div class="bg-purple-500/20 backdrop-blur-sm rounded-full pl-3 pr-1.5 py-1 border border-purple-400/40 flex items-center gap-2">
+            <span class="text-purple-200 text-[10px] font-black tracking-wider">FILTRE ACTIF :</span>
+            <span class="text-white text-[10px] font-black">Groupe 6A · Sommeil 😴</span>
+            <button class="w-4 h-4 bg-purple-700 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+              <i data-lucide="x" class="w-2.5 h-2.5 text-purple-200" stroke-width="3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== CONTENU SCROLLABLE ====== -->
+      <div class="flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
+        
+        <!-- ====== 2. MASCOTTE IA AVEC DIAGNOSTIC ====== -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-purple-950 rounded-3xl translate-y-1.5"></div>
+            
+            <div class="relative bg-gradient-to-br from-purple-800/90 via-fuchsia-900/80 to-indigo-900/90 backdrop-blur-sm rounded-3xl p-4 border-2 border-purple-400/30 overflow-hidden animate-ai-glow">
+              
+              <!-- Halos décoratifs -->
+              <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-300/20 rounded-full blur-2xl"></div>
+              
+              <!-- Étincelles flottantes -->
+              <div class="absolute top-2 right-3 text-amber-300/70 text-xs animate-sparkle-twinkle" style="animation-delay: 0s;">✦</div>
+              <div class="absolute top-6 right-8 text-amber-300/60 text-[10px] animate-sparkle-twinkle" style="animation-delay: 0.7s;">✧</div>
+              <div class="absolute bottom-3 right-5 text-amber-300/60 text-xs animate-sparkle-twinkle" style="animation-delay: 1.4s;">✦</div>
+
+              <div class="relative flex items-start gap-3">
+                
+                <!-- Mascotte IA plus grande pour l'écran principal -->
+                <div class="flex-shrink-0">
+                  <div class="relative">
+                    <div class="absolute inset-0 bg-purple-300/40 rounded-full blur-md"></div>
+                    <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-purple-300 via-fuchsia-300 to-pink-300 animate-mascot-bounce">
+                      <div class="w-full h-full rounded-full bg-gradient-to-br from-indigo-700 to-purple-900 flex items-center justify-center border-2 border-purple-300/30">
+                        <span class="text-3xl select-none">🤖</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Texte de l'IA -->
+                <div class="flex-1 min-w-0 pt-0.5">
+                  <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-amber-300 text-[10px] font-black tracking-widest">VIVA · LABORATOIRE</span>
+                    <span class="text-base">✨</span>
+                  </div>
+                  <p class="text-white font-bold text-xs leading-relaxed">
+                    J'ai analysé ton <span class="text-cyan-300 font-black">groupe 6A</span>. Le sommeil est leur point faible cette semaine 😴.
+                  </p>
+                  <p class="text-purple-200/90 text-xs font-bold leading-relaxed mt-1.5">
+                    Voici <span class="text-amber-300 font-black">3 activités interdisciplinaires</span> que tu peux faire avec eux ⬇️
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== 3. LES 3 CARTES D'ACTIVITÉS ====== -->
+        <div class="mt-4 space-y-3">
+          
+          <!-- ACTIVITÉ 1 : MATHÉMATIQUES -->
+          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.45s;">
+            <div class="btn-shadow absolute inset-0 bg-blue-950 rounded-3xl translate-y-1.5"></div>
+            
+            <div class="activity-inner relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-3xl p-4 border-2 border-blue-400/40 overflow-hidden">
+              
+              <!-- Décor -->
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-blue-300/20 rounded-full blur-2xl"></div>
+              <div class="absolute top-2 right-3 text-blue-200/30 text-[80px] font-black select-none leading-none">🔢</div>
+
+              <div class="relative">
+                <!-- Header : matière + niveau -->
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 bg-blue-500/30 rounded-xl flex items-center justify-center border border-blue-300/40">
+                      <span class="text-xl">🔢</span>
+                    </div>
+                    <div>
+                      <p class="text-blue-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
+                      <p class="text-white font-black text-xs leading-none">Mathématiques</p>
+                    </div>
+                  </div>
+                  <!-- Difficulté -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-emerald-400/40">
+                    <span class="text-emerald-300 text-[9px] font-black tracking-wider">FACILE</span>
+                  </div>
+                </div>
+
+                <!-- Titre activité -->
+                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
+                  Diagrammes des heures de sommeil
+                </h3>
+
+                <!-- Description -->
+                <p class="text-blue-100/90 text-[11px] font-bold leading-relaxed mb-3">
+                  Construire un diagramme à bandes des heures de sommeil de la classe (anonymisé) et calculer la moyenne du groupe.
+                </p>
+
+                <!-- Footer : durée + lien -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="clock" class="w-3 h-3 text-blue-200" stroke-width="2.5"></i>
+                      <span class="text-blue-200 text-[10px] font-black tracking-wide">30 min</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="users" class="w-3 h-3 text-blue-200" stroke-width="2.5"></i>
+                      <span class="text-blue-200 text-[10px] font-black tracking-wide">Classe entière</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-amber-300">
+                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- ACTIVITÉ 2 : ÉDUCATION PHYSIQUE -->
+          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.55s;">
+            <div class="btn-shadow absolute inset-0 bg-orange-950 rounded-3xl translate-y-1.5"></div>
+            
+            <div class="activity-inner relative bg-gradient-to-br from-orange-500 via-red-600 to-rose-700 rounded-3xl p-4 border-2 border-amber-400/50 overflow-hidden">
+              
+              <!-- Décor -->
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-amber-300/20 rounded-full blur-2xl"></div>
+              <div class="absolute top-2 right-3 text-orange-200/30 text-[80px] font-black select-none leading-none">🤸</div>
+              
+              <!-- Petit badge "TON DOMAINE" pour mettre en avant l'EPS -->
+              <div class="absolute top-2 right-2 bg-amber-300 rounded-full px-2 py-0.5 border-2 border-amber-200">
+                <span class="text-amber-900 text-[9px] font-black tracking-widest">⭐ TON DOMAINE</span>
+              </div>
+
+              <div class="relative">
+                <!-- Header : matière + niveau -->
+                <div class="flex items-center justify-between mb-2 mt-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 bg-orange-500/30 rounded-xl flex items-center justify-center border border-orange-300/40">
+                      <span class="text-xl">🤸</span>
+                    </div>
+                    <div>
+                      <p class="text-orange-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
+                      <p class="text-white font-black text-xs leading-none">Éducation physique</p>
+                    </div>
+                  </div>
+                  <!-- Difficulté -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-emerald-400/40">
+                    <span class="text-emerald-300 text-[9px] font-black tracking-wider">FACILE</span>
+                  </div>
+                </div>
+
+                <!-- Titre activité -->
+                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
+                  Le réveil en mouvement
+                </h3>
+
+                <!-- Description -->
+                <p class="text-orange-100/95 text-[11px] font-bold leading-relaxed mb-3">
+                  Routine d'étirements doux et exercices de respiration pour démarrer la journée énergisé après une bonne nuit. Lien direct entre sommeil et activité matinale.
+                </p>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="clock" class="w-3 h-3 text-orange-200" stroke-width="2.5"></i>
+                      <span class="text-orange-200 text-[10px] font-black tracking-wide">15 min</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="users" class="w-3 h-3 text-orange-200" stroke-width="2.5"></i>
+                      <span class="text-orange-200 text-[10px] font-black tracking-wide">Gymnase</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-amber-200">
+                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- ACTIVITÉ 3 : ARTS PLASTIQUES -->
+          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.65s;">
+            <div class="btn-shadow absolute inset-0 bg-purple-950 rounded-3xl translate-y-1.5"></div>
+            
+            <div class="activity-inner relative bg-gradient-to-br from-fuchsia-600 via-pink-600 to-purple-700 rounded-3xl p-4 border-2 border-pink-300/40 overflow-hidden">
+              
+              <!-- Décor -->
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-pink-300/20 rounded-full blur-2xl"></div>
+              <div class="absolute top-2 right-3 text-fuchsia-200/30 text-[80px] font-black select-none leading-none">🎨</div>
+
+              <div class="relative">
+                <!-- Header : matière + niveau -->
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 bg-pink-500/30 rounded-xl flex items-center justify-center border border-pink-300/40">
+                      <span class="text-xl">🎨</span>
+                    </div>
+                    <div>
+                      <p class="text-pink-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
+                      <p class="text-white font-black text-xs leading-none">Arts plastiques</p>
+                    </div>
+                  </div>
+                  <!-- Difficulté -->
+                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-amber-400/40">
+                    <span class="text-amber-300 text-[9px] font-black tracking-wider">MOYEN</span>
+                  </div>
+                </div>
+
+                <!-- Titre activité -->
+                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
+                  L'environnement idéal du sommeil
+                </h3>
+
+                <!-- Description -->
+                <p class="text-pink-100/95 text-[11px] font-bold leading-relaxed mb-3">
+                  Dessiner sa chambre idéale pour bien dormir, suivi d'une analyse en groupe sur les éléments qui favorisent un sommeil de qualité.
+                </p>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="clock" class="w-3 h-3 text-pink-200" stroke-width="2.5"></i>
+                      <span class="text-pink-200 text-[10px] font-black tracking-wide">45 min</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="users" class="w-3 h-3 text-pink-200" stroke-width="2.5"></i>
+                      <span class="text-pink-200 text-[10px] font-black tracking-wide">Individuel</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-amber-200">
+                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </a>
+        </div>
+
+        <!-- ====== 4. BOUTON "GÉNÉRER D'AUTRES IDÉES" ====== -->
+        <div class="mt-5 animate-slide-up" style="animation-delay: 0.8s;">
+          <button class="relative block w-full btn-3d">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            
+            <div class="relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl px-4 py-3 border-2 border-purple-400/30 overflow-hidden">
+              <div class="flex items-center justify-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-purple-300" stroke-width="2.5"></i>
+                <span class="text-white font-black text-sm tracking-tight">Générer 3 autres idées</span>
+                <span class="text-base">✨</span>
+              </div>
+              <p class="text-white/40 text-[10px] font-bold text-center mt-0.5">
+                L'IA proposera 3 nouvelles activités différentes
+              </p>
+            </div>
+          </button>
+        </div>
+
+        <!-- ====== 5. TRANSPARENCE DE L'IA ====== -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.9s;">
+          <div class="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-3 border border-cyan-500/20">
+            <div class="flex items-start gap-2.5">
+              <div class="flex-shrink-0 w-7 h-7 bg-cyan-500/20 rounded-lg flex items-center justify-center border border-cyan-400/30">
+                <span class="text-sm">💡</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-cyan-300 text-[10px] font-black tracking-widest mb-0.5">COMMENT L'IA A CHOISI ?</p>
+                <p class="text-white/70 text-[11px] font-bold leading-snug">
+                  L'IA a sélectionné ces activités en analysant les <span class="text-cyan-300 font-black">5 piliers du groupe</span> et en croisant le pilier le plus faible avec les <span class="text-cyan-300 font-black">disciplines du primaire</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Petit message -->
+        <div class="mt-4 animate-slide-up" style="animation-delay: 1s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              🧪 Le Laboratoire IA <span class="text-purple-400">apprend</span> de tes choix.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 6. NAVIGATION FIXE BAS ====== -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0a1424] via-[#0a1424]/95 to-transparent backdrop-blur-md h-24 -top-6"></div>
+        
+        <div class="relative px-4 pb-4 pt-2">
+          <div class="bg-zinc-900/90 backdrop-blur-xl rounded-3xl border-2 border-zinc-800" style="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div class="grid grid-cols-4 gap-1 p-2">
+              
+              <!-- Accueil -->
+              <a href="enseignant-accueil.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="home" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">ACCUEIL</span>
+              </a>
+
+              <!-- Groupes -->
+              <a href="enseignant-groupe.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">GROUPES</span>
+              </a>
+
+              <!-- Laboratoire IA (ACTIF) -->
+              <a href="enseignant-laboratoire.html" class="relative flex flex-col items-center justify-center py-2">
+                <div class="absolute inset-1 bg-gradient-to-br from-purple-500 to-fuchsia-600 rounded-2xl" style="box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4);"></div>
+                <div class="relative flex flex-col items-center">
+                  <i data-lucide="flask-conical" class="w-5 h-5 text-white" stroke-width="2.5"></i>
+                  <span class="text-white text-[9px] font-black tracking-wider mt-0.5">LABO IA</span>
+                </div>
+              </a>
+
+              <!-- Récompenses -->
+              <a href="enseignant-recompenses.html" class="flex flex-col items-center justify-center py-2 group hover:bg-white/5 rounded-2xl transition-colors">
+                <i data-lucide="award" class="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" stroke-width="2.5"></i>
+                <span class="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-black tracking-wider mt-0.5 transition-colors">BADGES</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-center mt-2">
+            <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

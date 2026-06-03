@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivaloop — Journal : Alimentation</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #000;
+    }
+    
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-in-right {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes bounce-in {
+      0% { opacity: 0; transform: scale(0.5); }
+      60% { opacity: 1; transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pulse-progress {
+      0%, 100% { box-shadow: 0 0 12px rgba(74, 222, 128, 0.6); }
+      50% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.9); }
+    }
+    @keyframes shine {
+      0% { transform: translateX(-100%) skewX(-20deg); }
+      100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    
+    .animate-slide-up { animation: slide-up 0.6s ease-out backwards; }
+    .animate-slide-in-right { animation: slide-in-right 0.5s ease-out backwards; }
+    .animate-bounce-in { animation: bounce-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    .animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+    .animate-pulse-progress { animation: pulse-progress 2s ease-in-out infinite; }
+    
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .text-stroke { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+    
+    .btn-3d { position: relative; transition: transform 0.1s ease; }
+    .btn-3d:active { transform: translateY(6px); }
+    .btn-3d:active .btn-shadow { opacity: 0; }
+    
+    .answer-btn.selected .answer-card { transform: scale(1.02); }
+    .answer-btn:not(.selected).has-selection { opacity: 0.4; transform: scale(0.97); }
+    .answer-btn { transition: all 0.3s ease; }
+    .answer-card { transition: transform 0.2s ease; }
+    
+    .selected-badge {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .selected .selected-badge { opacity: 1; transform: scale(1); }
+    
+    .continue-btn-disabled { opacity: 0.4; pointer-events: none; }
+    .continue-btn-enabled { opacity: 1; pointer-events: auto; }
+    
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+       style="box-shadow: 0 50px 100px -20px rgba(34, 197, 94, 0.25), 0 30px 60px -30px rgba(59, 130, 246, 0.4);">
+    
+    <!-- Fond -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0f1424 0%, #131e1f 50%, #0d2818 100%);">
+      <div class="absolute -top-20 -left-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -right-20 w-80 h-80 bg-green-600/15 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 left-1/4 w-64 h-64 bg-lime-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute inset-0 opacity-30"
+           style="background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 24px 24px;">
+      </div>
+    </div>
+
+    <div class="relative h-full flex flex-col">
+      
+      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+        <div class="w-32 h-6 bg-black rounded-full"></div>
+      </div>
+
+      <!-- En-tête -->
+      <div class="px-5 pt-2 pb-3 flex-shrink-0">
+        
+        <!-- Barre de progression : étape 2/5 (segment 1 complété, segment 2 actif) -->
+        <div class="flex gap-1.5 mb-4 animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="flex-1 h-1.5 bg-green-400 rounded-full" style="box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);"></div>
+          <div class="flex-1 h-1.5 bg-green-400 rounded-full animate-pulse-progress relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-300 to-green-500"></div>
+          </div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+          <div class="flex-1 h-1.5 bg-white/15 rounded-full"></div>
+        </div>
+
+        <div class="flex justify-center mb-3 animate-slide-up" style="animation-delay: 0.15s;">
+          <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+            <span class="text-white/60 text-xs font-black tracking-wider">ÉTAPE <span class="text-green-400">2</span> / 5</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Bouton retour : revient à l'étape Activité Physique -->
+          <a href="journal-activite.html" class="animate-slide-up btn-3d" style="animation-delay: 0.2s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
+            <div class="relative w-11 h-11 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center border-2 border-zinc-600/40">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-white" stroke-width="3"></i>
+            </div>
+          </a>
+
+          <div class="flex-1 flex justify-center animate-slide-up" style="animation-delay: 0.25s;">
+            <div class="bg-zinc-900/70 backdrop-blur-md rounded-2xl px-4 py-2 border border-emerald-500/30">
+              <h1 class="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                Alimentation
+                <span class="text-xl animate-float-gentle inline-block">🍎</span>
+              </h1>
+            </div>
+          </div>
+
+          <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="relative btn-3d cursor-pointer">
+              <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-2xl translate-y-1.5"></div>
+              <div class="relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-2xl px-2.5 py-2 flex items-center gap-1 border-2 border-blue-300/40">
+                <i data-lucide="star" class="w-4 h-4 text-yellow-300" style="fill: #fde047;"></i>
+                <span class="text-white font-black text-xs tracking-wide text-stroke">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone centrale -->
+      <div class="flex-1 flex flex-col px-5 mt-2 overflow-y-auto">
+        
+        <!-- Carte question -->
+        <div class="animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-emerald-950 rounded-3xl translate-y-2"></div>
+            <div class="relative bg-gradient-to-br from-emerald-800 via-emerald-900 to-green-950 rounded-3xl p-6 border-2 border-emerald-500/30 overflow-hidden">
+              
+              <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-400/20 rounded-full blur-2xl"></div>
+              <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-lime-400/10 rounded-full blur-2xl"></div>
+              
+              <div class="absolute top-3 right-4 text-2xl opacity-30 animate-float-gentle" style="animation-delay: 0.5s;">🥕</div>
+              <div class="absolute bottom-4 left-3 text-2xl opacity-30 animate-float-gentle" style="animation-delay: 1s;">🥬</div>
+              <div class="absolute top-1/2 right-3 text-xl opacity-20 animate-float-gentle" style="animation-delay: 1.5s;">🍇</div>
+
+              <div class="relative">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="bg-emerald-500/20 rounded-full px-3 py-1 border border-emerald-400/40">
+                    <span class="text-emerald-300 text-[10px] font-black tracking-widest">QUESTION DU JOUR</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-center mb-3">
+                  <div class="text-6xl animate-float-gentle">🌈</div>
+                </div>
+                
+                <h2 class="text-white font-black text-2xl text-center leading-tight tracking-tight text-stroke">
+                  As-tu mis de la <span class="text-emerald-300">couleur</span> dans ton assiette aujourd'hui ?
+                </h2>
+                <p class="text-emerald-200/70 text-center text-sm font-bold mt-2">
+                  (Fruits ou légumes 🍎🥦)
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons réponse -->
+        <div class="mt-6 space-y-3">
+          
+          <button id="btn-yes" onclick="selectAnswer('yes')" class="answer-btn block w-full text-left btn-3d animate-slide-in-right" style="animation-delay: 0.55s;">
+            <div class="btn-shadow absolute inset-0 bg-green-900 rounded-2xl translate-y-2"></div>
+            <div class="answer-card relative bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 rounded-2xl p-4 border-2 border-green-300/50 overflow-hidden">
+              <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+              <div class="relative flex items-center gap-3">
+                <div class="flex-shrink-0 w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border-2 border-white/30">
+                  <span class="text-3xl">🥦🍎</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white font-black text-lg text-stroke leading-tight">Oui, plein de couleurs !</p>
+                  <p class="text-green-100 text-xs font-bold mt-0.5">Bravo, ton corps te remercie 💪</p>
+                </div>
+                <div class="selected-badge flex-shrink-0">
+                  <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center" style="box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <i data-lucide="check" class="w-5 h-5 text-green-600" stroke-width="4"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </button>
+
+          <button id="btn-no" onclick="selectAnswer('no')" class="answer-btn block w-full text-left btn-3d animate-slide-in-right" style="animation-delay: 0.65s;">
+            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-2"></div>
+            <div class="answer-card relative bg-gradient-to-br from-zinc-600 via-zinc-700 to-zinc-800 rounded-2xl p-4 border-2 border-zinc-500/40 overflow-hidden">
+              <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
+              <div class="relative flex items-center gap-3">
+                <div class="flex-shrink-0 w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border-2 border-white/15">
+                  <span class="text-3xl">🤷</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white font-black text-lg text-stroke leading-tight">Pas encore...</p>
+                  <p class="text-zinc-300 text-xs font-bold mt-0.5">Sans jugement, on note simplement</p>
+                </div>
+                <div class="selected-badge flex-shrink-0">
+                  <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center" style="box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <i data-lucide="check" class="w-5 h-5 text-zinc-700" stroke-width="4"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </button>
+
+        </div>
+
+        <div class="mt-4 animate-slide-up" style="animation-delay: 0.75s;">
+          <div class="text-center">
+            <p class="text-white/40 text-xs font-bold tracking-wide">
+              ✨ Sois honnête, c'est <span class="text-emerald-400">pour toi</span> que tu le fais.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pied de page -->
+      <div class="flex-shrink-0 px-5 pb-6 pt-3">
+        <div class="animate-slide-up" style="animation-delay: 0.85s;">
+          <button id="continue-btn" onclick="goToNext()" class="continue-btn-disabled relative block w-full btn-3d transition-opacity duration-300">
+            <div class="btn-shadow absolute inset-0 bg-blue-900 rounded-3xl translate-y-2"></div>
+            <div class="shine-effect relative bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 rounded-3xl px-6 py-5 border-2 border-blue-300/50 overflow-hidden"
+                 style="box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);">
+              <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+              <div class="relative flex items-center justify-center gap-2">
+                <span class="text-white font-black text-xl tracking-wide text-stroke">Continuer</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 text-white" stroke-width="3.5"></i>
+              </div>
+              <div class="relative flex justify-center mt-1">
+                <span class="text-blue-100 text-[10px] font-bold tracking-widest">PROCHAINE ÉTAPE : SOMMEIL 😴</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div class="flex justify-center mt-3">
+          <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    let currentAnswer = null;
+    
+    function selectAnswer(answer) {
+      currentAnswer = answer;
+      const btnYes = document.getElementById('btn-yes');
+      const btnNo = document.getElementById('btn-no');
+      const continueBtn = document.getElementById('continue-btn');
+      
+      btnYes.classList.remove('selected');
+      btnNo.classList.remove('selected');
+      btnYes.classList.add('has-selection');
+      btnNo.classList.add('has-selection');
+      
+      if (answer === 'yes') {
+        btnYes.classList.add('selected');
+        btnYes.classList.remove('has-selection');
+      } else {
+        btnNo.classList.add('selected');
+        btnNo.classList.remove('has-selection');
+      }
+      
+      continueBtn.classList.remove('continue-btn-disabled');
+      continueBtn.classList.add('continue-btn-enabled');
+      
+      lucide.createIcons();
+    }
+    
+    function goToNext() {
+      if (currentAnswer === null) return;
+      
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.3';
+      setTimeout(() => {
+        window.location.href = 'journal-sommeil.html';
+      }, 300);
+    }
+  </script>
+</body>
+</html>

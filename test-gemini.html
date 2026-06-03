@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Gemini — Vivaloop Phase 4</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: #1a202c;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #4f46e5; }
+    button:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      line-height: 1.6;
+      min-height: 60px;
+      display: none;
+    }
+
+    .result-box.visible { display: block; }
+
+    #result {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+    }
+
+    #result.loading {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1e40af;
+      font-style: italic;
+    }
+
+    #error {
+      background: #fff1f2;
+      border: 1px solid #fda4af;
+      color: #9f1239;
+    }
+
+    #error pre {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #ffe4e6;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+      opacity: 0.7;
+    }
+
+    .endpoint {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #a0aec0;
+    }
+
+    .endpoint code {
+      background: #edf2f7;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Test de la fonction Gemini</h1>
+    <p class="subtitle">Vivaloop — Phase 4 · Validation de la chaîne complète</p>
+
+    <button id="btn" onclick="genererDefi()">Générer un défi</button>
+
+    <div id="result" class="result-box">
+      <div class="label">Défi généré</div>
+      <div id="result-text"></div>
+    </div>
+
+    <div id="error" class="result-box">
+      <div class="label">Erreur</div>
+      <div id="error-text"></div>
+      <pre id="error-details"></pre>
+    </div>
+
+    <p class="endpoint">
+      Appel vers : <code>/.netlify/functions/test-gemini</code>
+    </p>
+  </div>
+
+  <script>
+    async function genererDefi() {
+      const btn = document.getElementById("btn");
+      const resultBox = document.getElementById("result");
+      const resultText = document.getElementById("result-text");
+      const errorBox = document.getElementById("error");
+      const errorText = document.getElementById("error-text");
+      const errorDetails = document.getElementById("error-details");
+
+      // Réinitialiser l'affichage
+      errorBox.classList.remove("visible");
+      resultBox.classList.add("visible", "loading");
+      resultText.textContent = "Génération en cours...";
+      btn.disabled = true;
+
+      try {
+        const response = await fetch("/.netlify/functions/test-gemini");
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          throw {
+            httpStatus: response.status,
+            message: data.error || "Erreur inconnue",
+            details: data.details || null,
+          };
+        }
+
+        resultBox.classList.remove("loading");
+        resultText.textContent = data.defi;
+
+      } catch (err) {
+        resultBox.classList.remove("visible", "loading");
+        errorBox.classList.add("visible");
+        errorText.textContent = err.message || "Impossible de contacter la fonction.";
+        errorDetails.textContent = err.details
+          ? (typeof err.details === "object"
+              ? JSON.stringify(err.details, null, 2)
+              : err.details)
+          : (err.httpStatus ? "HTTP " + err.httpStatus : "");
+
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

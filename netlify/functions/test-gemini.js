@@ -28,11 +28,14 @@ exports.handler = async function (event, context) {
 
   const generationConfig = {
     temperature: 0.8,
-    maxOutputTokens: 200,
+    maxOutputTokens: 500,
+    thinkingConfig: {
+      thinkingBudget: 0,
+    },
   };
 
-  console.log("[test-gemini] Prompt envoyé :", prompt);
-  console.log("[test-gemini] Config :", JSON.stringify(generationConfig));
+  console.log("=== APPEL GEMINI ===");
+  console.log("Prompt envoyé:", prompt);
 
   try {
     const response = await fetch(
@@ -48,6 +51,7 @@ exports.handler = async function (event, context) {
     );
 
     const data = await response.json();
+    console.log("Réponse brute Gemini:", JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       return {
@@ -64,6 +68,7 @@ exports.handler = async function (event, context) {
     const defi =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Aucune réponse générée.";
+    console.log("Defi extrait:", defi);
 
     return {
       statusCode: 200,

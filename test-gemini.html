@@ -137,6 +137,11 @@
     <p class="endpoint">
       Appel vers : <code>/.netlify/functions/test-gemini</code>
     </p>
+
+    <div id="raw-box" class="result-box" style="display:none; margin-top:1rem; background:#f8fafc; border:1px solid #cbd5e1;">
+      <div class="label" style="color:#475569;">Réponse brute (JSON)</div>
+      <pre id="raw-text" style="font-size:0.78rem; white-space:pre-wrap; word-break:break-word; color:#334155; margin-top:0.4rem;"></pre>
+    </div>
   </div>
 
   <script>
@@ -157,6 +162,10 @@
       try {
         const response = await fetch("/.netlify/functions/test-gemini");
         const data = await response.json();
+
+        // Affiche toujours la réponse brute pour le débogage
+        document.getElementById("raw-box").style.display = "block";
+        document.getElementById("raw-text").textContent = JSON.stringify(data, null, 2);
 
         if (!response.ok || data.error) {
           throw {

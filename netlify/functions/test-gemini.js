@@ -17,9 +17,22 @@ exports.handler = async function (event, context) {
   }
 
   const prompt =
-    "Génère un défi santé court et motivant pour un élève du primaire (2-3 phrases maximum). " +
-    "Le défi doit porter sur l'activité physique, l'alimentation, le sommeil, les émotions ou le temps d'écran. " +
-    "Utilise un ton encourageant et accessible pour un enfant de 8 à 12 ans.";
+    "Tu es un coach santé pour des élèves du primaire (6 à 12 ans). Génère UN SEUL défi santé court et concret que l'élève peut accomplir aujourd'hui.\n\n" +
+    "CONTRAINTES STRICTES :\n" +
+    "- Réponds UNIQUEMENT avec le défi, sans préambule comme 'Voici un défi' ou 'Super idée'\n" +
+    "- Maximum 2 phrases\n" +
+    "- Vocabulaire adapté à un enfant de 8-10 ans\n" +
+    "- Le défi doit cibler un des 5 piliers : sommeil, alimentation, activité physique, gestion du stress, ou bien-être numérique\n" +
+    "- Formule positive (action à faire, pas restriction)\n\n" +
+    "Réponds directement avec le défi, sans aucun texte autour.";
+
+  const generationConfig = {
+    temperature: 0.8,
+    maxOutputTokens: 200,
+  };
+
+  console.log("[test-gemini] Prompt envoyé :", prompt);
+  console.log("[test-gemini] Config :", JSON.stringify(generationConfig));
 
   try {
     const response = await fetch(
@@ -29,10 +42,7 @@ exports.handler = async function (event, context) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 150,
-          },
+          generationConfig,
         }),
       }
     );

@@ -451,8 +451,8 @@
       "ACTIVITÉ":   "Bouger un peu plus te ferait du bien. Tente cette mission :"
     };
 
-    // ====== BANQUE DE DÉFIS SIMULÉS (A1 : pas encore d'IA) ======
-    // Étape A3 : ces défis seront remplacés par une génération Gemini.
+    // ====== BANQUE DE DÉFIS DE SECOURS ======
+    // Utilisée seulement si l'appel à Gemini échoue (filet de sécurité).
     const BANQUE_DEFIS = {
       "ÉCRANS": [
         { titre: "La Pause Nature",        emoji: "🍃", rarete: "MOYEN",
@@ -490,6 +490,9 @@
       ]
     };
 
+    // Point d'entrée de la fonction Netlify qui appelle Gemini.
+    const POINT_API = "/.netlify/functions/generer-defi";
+
     // ====== OUTILS ======
     // Détermine le pilier le plus faible à partir des tendances (3 niveaux).
     function pilierLePlusFaible(tendances) {
@@ -502,11 +505,11 @@
       return CLE_TENDANCE_VERS_PILIER[cleFaible] || "ÉCRANS";
     }
 
-    // Génère un défi simulé pour un pilier, en évitant les titres déjà vus.
-    function genererDefiSimule(pilier, titresExclus) {
+    // Défi de secours : tiré de la banque locale, sans IA.
+    function genererDefiSecours(pilier, titresExclus) {
       const banque = BANQUE_DEFIS[pilier] || BANQUE_DEFIS["ÉCRANS"];
       let choix = banque.filter(function (d) { return titresExclus.indexOf(d.titre) === -1; });
-      if (choix.length === 0) { choix = banque; }   // filet : si tout est exclu, on reprend tout
+      if (choix.length === 0) { choix = banque; }
       const tire = choix[Math.floor(Math.random() * choix.length)];
       return {
         titre: tire.titre,
@@ -514,8 +517,32 @@
         emoji: tire.emoji,
         description: tire.description,
         rarete: tire.rarete,
-        xp: XP_RARETE[tire.rarete] || 40
+        xp: XP_RARETE[tire.rarete] || 40,
+        source: "secours"
       };
+    }
+
+    // Appel à l'IA via la fonction Netlify. Lève une erreur si ça échoue.
+    async function genererDefiIA(pilier, titresExclus) {
+      const reponse = await fetch(POINT_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pilier: pilier, titresExclus: titresExclus })
+      });
+      if (!reponse.ok) { throw new Error("Réponse fonction " + reponse.status); }
+      const defi = await reponse.json();
+      if (!defi || !defi.titre) { throw new Error("Défi invalide"); }
+      return defi;
+    }
+
+    // Essaie l'IA, retombe sur la banque de secours en cas d'échec.
+    async function obtenirDefi(pilier, titresExclus) {
+      try {
+        return await genererDefiIA(pilier, titresExclus);
+      } catch (e) {
+        console.warn("Génération IA indisponible, défi de secours utilisé :", e.message);
+        return genererDefiSecours(pilier, titresExclus);
+      }
     }
 
     // ====== AFFICHAGE DE LA CARTE ======
@@ -538,6 +565,18 @@
         '<span class="text-amber-300 font-black">Super assiduité ! ✨</span><br>' + message;
     }
 
+    // État d'attente pendant l'appel à l'IA.
+    function afficherChargement() {
+      document.getElementById("defi-emoji").textContent       = "🤖";
+      document.getElementById("defi-titre").textContent       = "Viva réfléchit...";
+      document.getElementById("defi-description").textContent = "Je te prépare une mission rien que pour toi.";
+      document.getElementById("defi-xp").textContent          = "...";
+      const spanPilier = document.getElementById("defi-pilier");
+      spanPilier.textContent = "✨ EN COURS";
+      document.getElementById("viva-message").innerHTML =
+        '<span class="text-amber-300 font-black">Un instant ! ✨</span><br>Je cherche le défi parfait pour aujourd\'hui...';
+    }
+
     // Met à jour le compteur "restant/max" du bouton de changement.
     function majCompteurChangement(defi) {
       const max = (defi.changements_max != null) ? defi.changements_max : 1;
@@ -548,12 +587,13 @@
     // ====== CHARGEMENT ======
     let donnees = VivaData.charger();
 
-    // Renvoie le défi du jour : on réutilise celui déjà enregistré, sinon on en génère un.
-    function defiAujourdHui() {
+    // Renvoie le défi du jour : réutilise celui enregistré, sinon en génère un (IA).
+    async function defiAujourdHui() {
       if (!donnees.defi_du_jour) {
+        afficherChargement();
         const pilier = pilierLePlusFaible(donnees.tendances_7j);
         const titresExclus = (donnees.defis || []).map(function (d) { return d.titre; });
-        const nouveau = genererDefiSimule(pilier, titresExclus);
+        const nouveau = await obtenirDefi(pilier, titresExclus);
         nouveau.statut = "proposé";
         nouveau.changements_utilises = 0;
         nouveau.changements_max = 1;
@@ -563,8 +603,8 @@
       return donnees.defi_du_jour;
     }
 
-    (function init() {
-      const defi = defiAujourdHui();
+    (async function init() {
+      const defi = await defiAujourdHui();
       afficherDefi(defi);
       majCompteurChangement(defi);
     })();
@@ -586,7 +626,7 @@
       }, 500);
     }
 
-    function changerDefi() {
+    async function changerDefi() {
       const defi = donnees.defi_du_jour;
       const max = (defi.changements_max != null) ? defi.changements_max : 1;
       if ((defi.changements_utilises || 0) >= max) {
@@ -598,21 +638,22 @@
 
       const titresExclus = (donnees.defis || []).map(function (d) { return d.titre; });
       titresExclus.push(defi.titre);
-      const nouveau = genererDefiSimule(defi.pilier, titresExclus);
+
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.4';
+      afficherChargement();
+
+      const nouveau = await obtenirDefi(defi.pilier, titresExclus);
       nouveau.statut = "proposé";
       nouveau.changements_utilises = (defi.changements_utilises || 0) + 1;
       nouveau.changements_max = max;
       donnees.defi_du_jour = nouveau;
       VivaData.sauvegarder(donnees);
 
-      document.body.style.transition = 'opacity 0.3s ease';
-      document.body.style.opacity = '0.4';
-      setTimeout(function () {
-        afficherDefi(nouveau);
-        majCompteurChangement(nouveau);
-        lucide.createIcons();
-        document.body.style.opacity = '1';
-      }, 300);
+      afficherDefi(nouveau);
+      majCompteurChangement(nouveau);
+      lucide.createIcons();
+      document.body.style.opacity = '1';
     }
   </script>
 </body>

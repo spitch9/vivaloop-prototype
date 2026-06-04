@@ -250,9 +250,8 @@
             
             <div class="bg-gradient-to-br from-purple-900/90 to-indigo-900/90 backdrop-blur-md rounded-2xl rounded-tl-md p-3 border-2 border-purple-400/40"
                  style="box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);">
-              <p class="text-white font-bold text-xs leading-snug">
-                <span class="text-amber-300 font-black">Super assiduité ! ✨</span><br>
-                J'ai remarqué que tu avais <span class="text-cyan-300 font-black">beaucoup de temps d'écran</span> hier. Voici une mission spéciale pour toi aujourd'hui :
+              <p id="viva-message" class="text-white font-bold text-xs leading-snug">
+                <!-- rempli par JS -->
               </p>
             </div>
           </div>
@@ -296,14 +295,14 @@
                 <div class="relative flex items-center justify-between mb-3">
                   <!-- Étiquette "défi" + rareté -->
                   <div class="flex items-center gap-1.5">
-                    <span class="bg-amber-400 text-amber-900 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-full border-2 border-amber-200">
+                    <span id="defi-rarete" class="bg-amber-400 text-amber-900 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-full border-2 border-amber-200">
                       ⭐ ÉPIQUE
                     </span>
                   </div>
                   
                   <!-- Pilier ciblé -->
-                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2.5 py-0.5 border border-cyan-400/40">
-                    <span class="text-cyan-300 text-[9px] font-black tracking-widest">📱 ÉCRANS</span>
+                  <div id="defi-pilier-badge" class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2.5 py-0.5 border border-cyan-400/40">
+                    <span id="defi-pilier" class="text-cyan-300 text-[9px] font-black tracking-widest">📱 ÉCRANS</span>
                   </div>
                 </div>
 
@@ -315,7 +314,7 @@
                     
                     <!-- Cercle de fond -->
                     <div class="relative w-28 h-28 rounded-full bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-green-500/30 border-2 border-amber-300/40 flex items-center justify-center backdrop-blur-sm">
-                      <span class="text-7xl animate-icon-glow select-none">🌳</span>
+                      <span id="defi-emoji" class="text-7xl animate-icon-glow select-none">🌳</span>
                     </div>
                   </div>
                 </div>
@@ -323,9 +322,8 @@
                 <!-- ===== TITRE DU DÉFI ===== -->
                 <div class="relative text-center mb-2">
                   <p class="text-amber-200/80 text-[10px] font-black tracking-[0.2em] mb-1">MISSION DU JOUR</p>
-                  <h2 class="text-white font-black text-2xl tracking-tight text-stroke-strong leading-tight">
-                    L'Explorateur<br>
-                    <span class="text-amber-300">Sans Écran</span>
+                  <h2 id="defi-titre" class="text-white font-black text-2xl tracking-tight text-stroke-strong leading-tight">
+                    L'Explorateur Sans Écran
                   </h2>
                 </div>
 
@@ -336,10 +334,8 @@
 
                 <!-- ===== DESCRIPTION ===== -->
                 <div class="relative bg-black/30 backdrop-blur-sm rounded-2xl p-3 border border-white/10 mb-3">
-                  <p class="text-white/95 font-bold text-xs text-center leading-relaxed">
-                    Passe <span class="text-amber-300 font-black">15 minutes dehors</span> après l'école sans toucher à ton téléphone.
-                    <br><br>
-                    <span class="text-emerald-300 font-black">Observe 3 choses</span> de la nature 🍃
+                  <p id="defi-description" class="text-white/95 font-bold text-xs text-center leading-relaxed">
+                    <!-- rempli par JS -->
                   </p>
                 </div>
 
@@ -353,7 +349,7 @@
                     <div class="relative bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-full px-4 py-1.5 border-2 border-amber-200 flex items-center gap-2"
                          style="box-shadow: 0 8px 16px rgba(251, 191, 36, 0.5);">
                       <i data-lucide="zap" class="w-4 h-4 text-amber-900" style="fill: #713f12;"></i>
-                      <span class="text-amber-900 font-black text-sm tracking-wide text-stroke">
+                      <span id="defi-xp" class="text-amber-900 font-black text-sm tracking-wide text-stroke">
                         +100 XP
                       </span>
                       <span class="text-amber-900 text-base">🎁</span>
@@ -402,7 +398,7 @@
             <span class="text-white/40 group-hover:text-white/70 text-[11px] font-bold tracking-wide transition-colors underline underline-offset-2">
               Ce défi ne me convient pas
             </span>
-            <span class="bg-zinc-800/60 text-white/40 group-hover:text-white/70 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded-md border border-white/10 transition-colors">
+            <span id="defi-changement-compteur" class="bg-zinc-800/60 text-white/40 group-hover:text-white/70 text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded-md border border-white/10 transition-colors">
               1/1
             </span>
           </button>
@@ -416,38 +412,207 @@
     </div>
   </div>
 
+  <!-- Données Vivaloop : le seed d'abord, la logique ensuite -->
+  <script src="maya-seed.js"></script>
+  <script src="vivaloop-data.js"></script>
+
   <script>
     lucide.createIcons();
-    
+
+    // ====== TABLES DE CORRESPONDANCE (UI) ======
+    // Clé des tendances (minuscule) -> code de pilier (majuscule accentué).
+    const CLE_TENDANCE_VERS_PILIER = {
+      sommeil: "SOMMEIL",
+      alimentation: "ALIMENTATION",
+      activite: "ACTIVITÉ",
+      emotions: "ÉMOTIONS",
+      ecrans: "ÉCRANS"
+    };
+
+    // Emoji et couleur d'accent propres à chaque pilier (pour le badge).
+    const PILIERS = {
+      SOMMEIL:      { emoji: "😴", couleur: "#a5b4fc", bordure: "rgba(129,140,248,0.45)" },
+      ALIMENTATION: { emoji: "🍎", couleur: "#86efac", bordure: "rgba(74,222,128,0.45)" },
+      "ÉCRANS":     { emoji: "📱", couleur: "#67e8f9", bordure: "rgba(34,211,238,0.45)" },
+      "ÉMOTIONS":   { emoji: "💛", couleur: "#f0abfc", bordure: "rgba(232,121,249,0.45)" },
+      "ACTIVITÉ":   { emoji: "⚡", couleur: "#fdba74", bordure: "rgba(251,146,60,0.45)" }
+    };
+
+    // Étiquette de rareté et XP associés.
+    const RARETES   = { FACILE: "🌱 FACILE", MOYEN: "✦ MOYEN", "ÉPIQUE": "⭐ ÉPIQUE" };
+    const XP_RARETE = { FACILE: 40, MOYEN: 60, "ÉPIQUE": 100 };
+
+    // Message bienveillant de Viva selon le pilier (gabarit, ton non culpabilisant).
+    const MESSAGES_VIVA = {
+      SOMMEIL:      "Ton sommeil mérite un peu d'attention en ce moment. Voici une mission tout en douceur :",
+      ALIMENTATION: "On pourrait mettre un peu plus de variété dans ton assiette. Voici une idée pour aujourd'hui :",
+      "ÉCRANS":     "J'ai vu que ton temps d'écran grimpait un peu ces jours-ci. Voici une mission pour souffler loin des écrans :",
+      "ÉMOTIONS":   "Prendre soin de tes émotions, c'est important. Voici une mission toute en douceur :",
+      "ACTIVITÉ":   "Bouger un peu plus te ferait du bien. Tente cette mission :"
+    };
+
+    // ====== BANQUE DE DÉFIS SIMULÉS (A1 : pas encore d'IA) ======
+    // Étape A3 : ces défis seront remplacés par une génération Gemini.
+    const BANQUE_DEFIS = {
+      "ÉCRANS": [
+        { titre: "La Pause Nature",        emoji: "🍃", rarete: "MOYEN",
+          description: "Range ton écran et va dehors 15 minutes. Trouve trois choses vivantes à observer." },
+        { titre: "Le Repas Tranquille",    emoji: "🍽️", rarete: "FACILE",
+          description: "Choisis un repas aujourd'hui et mange-le sans aucun écran autour de toi. Savoure chaque bouchée." },
+        { titre: "L'Heure Sans Bip",       emoji: "🔕", rarete: "MOYEN",
+          description: "Mets ton appareil en mode silencieux pendant une heure ce soir, et fais une activité que tu aimes." },
+        { titre: "Le Coucher Déconnecté",  emoji: "🌙", rarete: "ÉPIQUE",
+          description: "Ce soir, range les écrans 30 minutes avant de dormir. Lis ou dessine à la place." }
+      ],
+      "SOMMEIL": [
+        { titre: "Le Gardien des Rêves",   emoji: "🌙", rarete: "MOYEN",
+          description: "Prépare ta chambre pour la nuit : lumière douce et écrans rangés 30 minutes avant de dormir." },
+        { titre: "Le Réveil en Douceur",   emoji: "☀️", rarete: "FACILE",
+          description: "Demain matin, étire-toi tranquillement au réveil avant de te lever, avec trois grandes respirations." }
+      ],
+      "ALIMENTATION": [
+        { titre: "L'Arc-en-ciel Gourmand", emoji: "🌈", rarete: "FACILE",
+          description: "Ajoute deux couleurs différentes de fruits ou de légumes dans ton assiette aujourd'hui." },
+        { titre: "La Gorgée Maline",       emoji: "💧", rarete: "FACILE",
+          description: "Bois un grand verre d'eau au réveil et un autre avant le souper." }
+      ],
+      "ÉMOTIONS": [
+        { titre: "La Météo du Cœur",       emoji: "🌤️", rarete: "FACILE",
+          description: "Prends un moment pour nommer comment tu te sens aujourd'hui, et pourquoi." },
+        { titre: "La Respiration Magique", emoji: "🫧", rarete: "MOYEN",
+          description: "Quand quelque chose te chicote, fais trois respirations lentes en comptant jusqu'à quatre." }
+      ],
+      "ACTIVITÉ": [
+        { titre: "L'Explorateur en Mouvement", emoji: "🚶", rarete: "FACILE",
+          description: "Bouge 20 minutes aujourd'hui : marche, danse ou joue dehors, à toi de choisir." },
+        { titre: "Le Défi des Escaliers",      emoji: "🧗", rarete: "MOYEN",
+          description: "Choisis les escaliers plutôt que l'ascenseur chaque fois que tu le peux aujourd'hui." }
+      ]
+    };
+
+    // ====== OUTILS ======
+    // Détermine le pilier le plus faible à partir des tendances (3 niveaux).
+    function pilierLePlusFaible(tendances) {
+      const rang = { "à soutenir": 0, "à surveiller": 1, "belle énergie": 2 };
+      let cleFaible = null, meilleur = 99;
+      Object.keys(tendances || {}).forEach(function (cle) {
+        const r = rang[tendances[cle]];
+        if (typeof r === "number" && r < meilleur) { meilleur = r; cleFaible = cle; }
+      });
+      return CLE_TENDANCE_VERS_PILIER[cleFaible] || "ÉCRANS";
+    }
+
+    // Génère un défi simulé pour un pilier, en évitant les titres déjà vus.
+    function genererDefiSimule(pilier, titresExclus) {
+      const banque = BANQUE_DEFIS[pilier] || BANQUE_DEFIS["ÉCRANS"];
+      let choix = banque.filter(function (d) { return titresExclus.indexOf(d.titre) === -1; });
+      if (choix.length === 0) { choix = banque; }   // filet : si tout est exclu, on reprend tout
+      const tire = choix[Math.floor(Math.random() * choix.length)];
+      return {
+        titre: tire.titre,
+        pilier: pilier,
+        emoji: tire.emoji,
+        description: tire.description,
+        rarete: tire.rarete,
+        xp: XP_RARETE[tire.rarete] || 40
+      };
+    }
+
+    // ====== AFFICHAGE DE LA CARTE ======
+    function afficherDefi(defi) {
+      document.getElementById("defi-rarete").textContent = RARETES[defi.rarete] || defi.rarete;
+
+      const infoPilier = PILIERS[defi.pilier] || PILIERS["ÉCRANS"];
+      const spanPilier = document.getElementById("defi-pilier");
+      spanPilier.textContent = infoPilier.emoji + " " + defi.pilier;
+      spanPilier.style.color = infoPilier.couleur;
+      document.getElementById("defi-pilier-badge").style.borderColor = infoPilier.bordure;
+
+      document.getElementById("defi-emoji").textContent       = defi.emoji;
+      document.getElementById("defi-titre").textContent       = defi.titre;
+      document.getElementById("defi-description").textContent = defi.description;
+      document.getElementById("defi-xp").textContent          = "+" + defi.xp + " XP";
+
+      const message = MESSAGES_VIVA[defi.pilier] || "";
+      document.getElementById("viva-message").innerHTML =
+        '<span class="text-amber-300 font-black">Super assiduité ! ✨</span><br>' + message;
+    }
+
+    // Met à jour le compteur "restant/max" du bouton de changement.
+    function majCompteurChangement(defi) {
+      const max = (defi.changements_max != null) ? defi.changements_max : 1;
+      const utilises = defi.changements_utilises || 0;
+      document.getElementById("defi-changement-compteur").textContent = (max - utilises) + "/" + max;
+    }
+
+    // ====== CHARGEMENT ======
+    let donnees = VivaData.charger();
+
+    // Renvoie le défi du jour : on réutilise celui déjà enregistré, sinon on en génère un.
+    function defiAujourdHui() {
+      if (!donnees.defi_du_jour) {
+        const pilier = pilierLePlusFaible(donnees.tendances_7j);
+        const titresExclus = (donnees.defis || []).map(function (d) { return d.titre; });
+        const nouveau = genererDefiSimule(pilier, titresExclus);
+        nouveau.statut = "proposé";
+        nouveau.changements_utilises = 0;
+        nouveau.changements_max = 1;
+        donnees.defi_du_jour = nouveau;
+        VivaData.sauvegarder(donnees);
+      }
+      return donnees.defi_du_jour;
+    }
+
+    (function init() {
+      const defi = defiAujourdHui();
+      afficherDefi(defi);
+      majCompteurChangement(defi);
+    })();
+
+    // ====== ACTIONS ======
     function accepterDefi() {
-      // Animation de validation
+      donnees.defi_du_jour.statut = "accepté";
+      VivaData.sauvegarder(donnees);
+
       document.body.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
       document.body.style.opacity = '0.3';
       document.body.style.transform = 'scale(1.02)';
-      
-      setTimeout(() => {
-        // En Phase 4 : sauvegarder le défi accepté + retour à l'accueil avec carte défi débloquée
-        alert('🎉 Défi accepté ! 🎉\n\nL\'Explorateur Sans Écran t\'attend dehors !\n\nReviens demain pour valider ton défi et continuer ta série. 🔥\n\n(Retour à l\'accueil avec la carte Défi maintenant active.)');
+
+      setTimeout(function () {
+        alert('🎉 Défi accepté !\n\n« ' + donnees.defi_du_jour.titre + ' » t\'attend.\n\nReviens demain pour le valider et continuer ta série. 🔥');
         document.body.style.opacity = '1';
         document.body.style.transform = 'scale(1)';
-        // Retour à l'accueil
         window.location.href = 'accueil.html';
       }, 500);
     }
-    
+
     function changerDefi() {
-      // En Phase 4 : nouvelle requête à l'IA pour générer un défi alternatif
-      // Pour le prototype, on simule avec un message
-      const confirmation = confirm('🔄 Changer de défi\n\nTu n\'as droit qu\'à un seul changement par jour. L\'IA va te proposer un défi différent.\n\nContinuer ?');
-      
-      if (confirmation) {
-        document.body.style.transition = 'opacity 0.4s ease';
-        document.body.style.opacity = '0.3';
-        setTimeout(() => {
-          alert('✨ Nouveau défi généré !\n\n(En Phase 4, l\'IA générera ici un défi alternatif basé sur tes données. Pour le prototype, tu peux réutiliser le même écran avec un autre défi pré-écrit.)');
-          document.body.style.opacity = '1';
-        }, 400);
+      const defi = donnees.defi_du_jour;
+      const max = (defi.changements_max != null) ? defi.changements_max : 1;
+      if ((defi.changements_utilises || 0) >= max) {
+        alert('Tu as déjà utilisé ton changement du jour.\n\nCe défi a été choisi pour toi avec soin. Tu peux le relever à ton rythme. 💪');
+        return;
       }
+      const confirmation = confirm('🔄 Changer de défi ?\n\nTu n\'as droit qu\'à un seul changement par jour.\n\nContinuer ?');
+      if (!confirmation) return;
+
+      const titresExclus = (donnees.defis || []).map(function (d) { return d.titre; });
+      titresExclus.push(defi.titre);
+      const nouveau = genererDefiSimule(defi.pilier, titresExclus);
+      nouveau.statut = "proposé";
+      nouveau.changements_utilises = (defi.changements_utilises || 0) + 1;
+      nouveau.changements_max = max;
+      donnees.defi_du_jour = nouveau;
+      VivaData.sauvegarder(donnees);
+
+      document.body.style.transition = 'opacity 0.3s ease';
+      document.body.style.opacity = '0.4';
+      setTimeout(function () {
+        afficherDefi(nouveau);
+        majCompteurChangement(nouveau);
+        lucide.createIcons();
+        document.body.style.opacity = '1';
+      }, 300);
     }
   </script>
 </body>

@@ -178,14 +178,14 @@
                 </div>
 
                 <div class="flex justify-center mb-3">
-                  <div class="text-6xl animate-float-gentle">🌈</div>
+                  <div id="alim-emoji" class="text-6xl animate-float-gentle">🌈</div>
                 </div>
                 
-                <h2 class="text-white font-black text-2xl text-center leading-tight tracking-tight text-stroke">
-                  As-tu mis de la <span class="text-emerald-300">couleur</span> dans ton assiette aujourd'hui ?
+                <h2 id="alim-question" class="text-white font-black text-2xl text-center leading-tight tracking-tight text-stroke">
+                  <!-- rempli par JS -->
                 </h2>
-                <p class="text-emerald-200/70 text-center text-sm font-bold mt-2">
-                  (Fruits ou légumes 🍎🥦)
+                <p id="alim-soustitre" class="text-emerald-200/70 text-center text-sm font-bold mt-2">
+                  <!-- rempli par JS -->
                 </p>
               </div>
             </div>
@@ -201,11 +201,11 @@
               <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
               <div class="relative flex items-center gap-3">
                 <div class="flex-shrink-0 w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border-2 border-white/30">
-                  <span class="text-3xl">🥦🍎</span>
+                  <span id="alim-oui-emoji" class="text-3xl">🥦🍎</span>
                 </div>
                 <div class="flex-1">
-                  <p class="text-white font-black text-lg text-stroke leading-tight">Oui, plein de couleurs !</p>
-                  <p class="text-green-100 text-xs font-bold mt-0.5">Bravo, ton corps te remercie 💪</p>
+                  <p id="alim-oui-label" class="text-white font-black text-lg text-stroke leading-tight">Oui, plein de couleurs !</p>
+                  <p id="alim-oui-souslabel" class="text-green-100 text-xs font-bold mt-0.5">Bravo, ton corps te remercie 💪</p>
                 </div>
                 <div class="selected-badge flex-shrink-0">
                   <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center" style="box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
@@ -274,22 +274,162 @@
     </div>
   </div>
 
+  <!-- Données Vivaloop : le seed d'abord, la logique ensuite -->
+  <script src="maya-seed.js"></script>
+  <script src="vivaloop-data.js"></script>
+
   <script>
     lucide.createIcons();
-    
+
+    // ====== BANQUE DE QUESTIONS (Guide alimentaire canadien) ======
+    // 16 questions pré-écrites, aucune IA. Le marqueur {…} indique le mot à surligner.
+    const BANQUE_ALIMENTATION = [
+      { id: "q_couleurs",           emoji_central: "🌈",
+        question: "As-tu mis de la {couleur} dans ton assiette aujourd'hui ?",
+        soustitre: "(Fruits ou légumes 🍎🥦)",
+        oui: { emoji: "🥦🍎", label: "Oui, plein de couleurs !", souslabel: "Bravo, ton corps te remercie 💪" } },
+      { id: "q_eau",                emoji_central: "💧",
+        question: "As-tu bu assez d'{eau} aujourd'hui ?",
+        soustitre: "(Au moins quelques verres 🥤)",
+        oui: { emoji: "💦", label: "Oui, j'ai bien bu !", souslabel: "Hydratation au top 💪" } },
+      { id: "q_fibres",             emoji_central: "🌾",
+        question: "As-tu mangé un aliment à {grains entiers} aujourd'hui ?",
+        soustitre: "(Pain, pâtes, riz brun, avoine)",
+        oui: { emoji: "🍞", label: "Oui, des grains entiers !", souslabel: "Belle énergie longue durée 💪" } },
+      { id: "q_sans_ecran",         emoji_central: "📵",
+        question: "As-tu mangé au moins un repas {sans écran} ?",
+        soustitre: "(Tablette, télé, téléphone)",
+        oui: { emoji: "🍽️", label: "Oui, repas tout doux !", souslabel: "Goûter en pleine conscience 💪" } },
+      { id: "q_pleine_conscience",  emoji_central: "🧘",
+        question: "As-tu pris le temps de bien {savourer} un de tes repas ?",
+        soustitre: "(Goûter, sentir, mâcher tranquillement)",
+        oui: { emoji: "😋", label: "Oui, savouré chaque bouchée !", souslabel: "Tu as nourri ton corps et ton calme 💪" } },
+      { id: "q_dejeuner",           emoji_central: "🌅",
+        question: "As-tu {déjeuné} avant ta journée ?",
+        soustitre: "(Pour démarrer en forme)",
+        oui: { emoji: "🥣", label: "Oui, bien déjeuné !", souslabel: "L'énergie au rendez-vous 💪" } },
+      { id: "q_legumes",            emoji_central: "🥦",
+        question: "Y avait-il des {légumes} dans ton assiette aujourd'hui ?",
+        soustitre: "(Cuits, crus, peu importe 🥕)",
+        oui: { emoji: "🥕", label: "Oui, des légumes !", souslabel: "Belle dose de vitamines 💪" } },
+      { id: "q_fruits",             emoji_central: "🍓",
+        question: "As-tu mangé un {fruit} aujourd'hui ?",
+        soustitre: "(Frais, congelé, en collation 🍌)",
+        oui: { emoji: "🍎", label: "Oui, un fruit !", souslabel: "Vitamine et plaisir 💪" } },
+      { id: "q_collation_saine",    emoji_central: "🥜",
+        question: "Ta collation t'a-t-elle donné de l'{énergie} aujourd'hui ?",
+        soustitre: "(Fruits, noix, yogourt, fromage)",
+        oui: { emoji: "🧀", label: "Oui, super collation !", souslabel: "Carburant de qualité 💪" } },
+      { id: "q_cuisiner",           emoji_central: "👩‍🍳",
+        question: "As-tu aidé à {préparer} un repas ou une collation ?",
+        soustitre: "(Couper, mélanger, servir 🥄)",
+        oui: { emoji: "🍳", label: "Oui, j'ai cuisiné !", souslabel: "Bravo l'équipe en cuisine 💪" } },
+      { id: "q_famille",            emoji_central: "👨‍👩‍👧",
+        question: "As-tu {partagé} un repas avec quelqu'un aujourd'hui ?",
+        soustitre: "(Famille, ami, à l'école)",
+        oui: { emoji: "🍽️", label: "Oui, à plusieurs !", souslabel: "Manger ensemble, c'est doux 💪" } },
+      { id: "q_decouverte",         emoji_central: "🌟",
+        question: "As-tu goûté quelque chose de {nouveau} ou peu habituel ?",
+        soustitre: "(Un fruit, un légume, une recette)",
+        oui: { emoji: "🥭", label: "Oui, une découverte !", souslabel: "L'aventure du goût 💪" } },
+      { id: "q_proteines",          emoji_central: "🥚",
+        question: "As-tu mangé un aliment riche en {protéines} aujourd'hui ?",
+        soustitre: "(Œuf, légumineuses, viande, tofu, yogourt)",
+        oui: { emoji: "🥩", label: "Oui, des protéines !", souslabel: "Tes muscles disent merci 💪" } },
+      { id: "q_assiette_equilibre", emoji_central: "🍱",
+        question: "Ton assiette du midi avait-elle {un peu de tout} ?",
+        soustitre: "(Légumes, féculents, protéines)",
+        oui: { emoji: "🥗", label: "Oui, bien équilibrée !", souslabel: "Belle assiette colorée 💪" } },
+      { id: "q_calme",              emoji_central: "🐢",
+        question: "As-tu mangé {sans te presser} aujourd'hui ?",
+        soustitre: "(Prendre son temps, mâcher)",
+        oui: { emoji: "😌", label: "Oui, calmement !", souslabel: "Ton ventre te remercie 💪" } },
+      { id: "q_ecoute_faim",        emoji_central: "👂",
+        question: "As-tu {écouté ton corps} quand il a dit que c'était assez ?",
+        soustitre: "(Arrêter quand on n'a plus faim)",
+        oui: { emoji: "🤗", label: "Oui, à l'écoute !", souslabel: "Ton corps a un super radar 💪" } }
+    ];
+
+    // ====== OUTILS DATE ======
+    function formaterDateLocale(d) {
+      const a = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const j = String(d.getDate()).padStart(2, "0");
+      return a + "-" + m + "-" + j;
+    }
+
+    // Indice déterministe à partir d'une chaîne de date.
+    function indiceDepuisDate(dateStr, longueur) {
+      let somme = 0;
+      for (let i = 0; i < dateStr.length; i++) somme += dateStr.charCodeAt(i);
+      return somme % longueur;
+    }
+
+    // ====== ROTATION DE LA QUESTION ======
+    function questionDuJour(donnees) {
+      const dateAujourdhui = formaterDateLocale(new Date());
+
+      // 1. Réutiliser si déjà calculée pour aujourd'hui (démo stable au rechargement).
+      const stockee = donnees.question_alimentation_du_jour;
+      if (stockee && stockee.date === dateAujourdhui) {
+        const trouvee = BANQUE_ALIMENTATION.find(function (q) { return q.id === stockee.question_id; });
+        if (trouvee) return trouvee;
+      }
+
+      // 2. Sinon : départ déterministe selon la date, en sautant les ids déjà vus récemment.
+      const idsRecents = (donnees.journal || [])
+        .map(function (j) { return j.alimentation && j.alimentation.question_id; })
+        .filter(Boolean);
+
+      const depart = indiceDepuisDate(dateAujourdhui, BANQUE_ALIMENTATION.length);
+      let choisie = null;
+      for (let i = 0; i < BANQUE_ALIMENTATION.length; i++) {
+        const candidat = BANQUE_ALIMENTATION[(depart + i) % BANQUE_ALIMENTATION.length];
+        if (idsRecents.indexOf(candidat.id) === -1) { choisie = candidat; break; }
+      }
+      if (!choisie) choisie = BANQUE_ALIMENTATION[depart];  // filet : tout exclu (improbable)
+
+      donnees.question_alimentation_du_jour = {
+        question_id: choisie.id,
+        date: dateAujourdhui
+      };
+      VivaData.sauvegarder(donnees);
+      return choisie;
+    }
+
+    // ====== AFFICHAGE ======
+    function afficherQuestion(q) {
+      document.getElementById("alim-emoji").textContent       = q.emoji_central;
+      // Le mot entre accolades devient un span vert (text-emerald-300).
+      const html = q.question.replace(/\{([^}]+)\}/g,
+        '<span class="text-emerald-300">$1</span>');
+      document.getElementById("alim-question").innerHTML      = html;
+      document.getElementById("alim-soustitre").textContent   = q.soustitre;
+      document.getElementById("alim-oui-emoji").textContent   = q.oui.emoji;
+      document.getElementById("alim-oui-label").textContent   = q.oui.label;
+      document.getElementById("alim-oui-souslabel").textContent = q.oui.souslabel;
+    }
+
+    // ====== CHARGEMENT ======
+    let donnees = VivaData.charger();
+    const questionCourante = questionDuJour(donnees);
+    afficherQuestion(questionCourante);
+    lucide.createIcons();
+
+    // ====== LOGIQUE DE RÉPONSE (préservée + enregistrement) ======
     let currentAnswer = null;
-    
+
     function selectAnswer(answer) {
       currentAnswer = answer;
       const btnYes = document.getElementById('btn-yes');
       const btnNo = document.getElementById('btn-no');
       const continueBtn = document.getElementById('continue-btn');
-      
+
       btnYes.classList.remove('selected');
       btnNo.classList.remove('selected');
       btnYes.classList.add('has-selection');
       btnNo.classList.add('has-selection');
-      
+
       if (answer === 'yes') {
         btnYes.classList.add('selected');
         btnYes.classList.remove('has-selection');
@@ -297,19 +437,28 @@
         btnNo.classList.add('selected');
         btnNo.classList.remove('has-selection');
       }
-      
+
       continueBtn.classList.remove('continue-btn-disabled');
       continueBtn.classList.add('continue-btn-enabled');
-      
+
       lucide.createIcons();
     }
-    
+
     function goToNext() {
       if (currentAnswer === null) return;
-      
+
+      // Enregistrer la réponse du jour pour le pilier alimentation.
+      if (!donnees.journal_aujourdhui) donnees.journal_aujourdhui = {};
+      donnees.journal_aujourdhui.alimentation = {
+        question_id: questionCourante.id,
+        reponse: (currentAnswer === 'yes') ? 'oui' : 'pas encore',
+        date: formaterDateLocale(new Date())
+      };
+      VivaData.sauvegarder(donnees);
+
       document.body.style.transition = 'opacity 0.3s ease';
       document.body.style.opacity = '0.3';
-      setTimeout(() => {
+      setTimeout(function () {
         window.location.href = 'journal-sommeil.html';
       }, 300);
     }

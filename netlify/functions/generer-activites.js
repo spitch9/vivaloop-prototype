@@ -1,15 +1,11 @@
 /* ============================================================================
-   netlify/functions/generer-activites.js
+   netlify/functions/generer-activites.js  (v2 — correction bugs 502)
    ----------------------------------------------------------------------------
-   Génère 3 activités pédagogiques interdisciplinaires via Gemini
-   (gemini-2.5-flash), en JSON structuré. La clé API reste côté serveur.
-
-   Reçoit (POST, corps JSON) :
-       { "pilier": "SOMMEIL", "specialite": "Éducation physique",
-         "titresExclus": ["...", "..."] }
-   Renvoie (200) :
-       { activites: [a1, a2, a3], source: "ia" }
-   En cas d'échec : statut 502, et la page appelante bascule sur sa banque.
+   Corrections apportées :
+   - Tous les break sur erreur/validation remplacés par continue (3 tentatives).
+   - Suppression de l'enum sur duree_min (entier) et de minItems/maxItems :
+     ces contraintes ne sont pas universellement supportées par Gemini.
+   - Délai de retry réduit : 400 ms × tentative (évite le timeout Netlify 10 s).
    ========================================================================== */
 
 const MODELE = "gemini-2.5-flash";
@@ -60,20 +56,20 @@ function construirePrompt(pilier, specialite, titresExclus) {
     "- matiere : la matière (exactement comme dans la liste autorisée)",
     "- titre : court et accrocheur (2 à 6 mots)",
     "- description : 1 à 2 phrases qui expliquent l'activité concrètement",
-    "- duree_min : durée en minutes (15, 20, 30, 40, 45 ou 60)",
-    "- audience : format de travail (par exemple \"Classe entière\", \"Équipes\", \"Duos\", \"Individuel\", \"Gymnase\")",
+    "- duree_min : durée en minutes (entier : 15, 20, 30, 40, 45 ou 60)",
+    "- audience : format de travail (ex. : \"Classe entière\", \"Équipes\", \"Duos\", \"Individuel\", \"Gymnase\")",
     "- difficulte : FACILE, MOYEN ou DIFFICILE"
   ].join("\n");
 }
 
-// Forme imposée à la réponse de Gemini : un objet contenant un tableau de 3 activités.
+// Schéma JSON allégé : pas d'enum entier ni de minItems/maxItems.
 const SCHEMA_ACTIVITE = {
   type: "object",
   properties: {
     matiere:     { type: "string", enum: MATIERES_AUTORISEES },
     titre:       { type: "string" },
     description: { type: "string" },
-    duree_min:   { type: "integer", enum: [15, 20, 30, 40, 45, 60] },
+    duree_min:   { type: "integer" },
     audience:    { type: "string" },
     difficulte:  { type: "string", enum: ["FACILE", "MOYEN", "DIFFICILE"] }
   },
@@ -83,12 +79,7 @@ const SCHEMA_ACTIVITE = {
 const SCHEMA = {
   type: "object",
   properties: {
-    activites: {
-      type: "array",
-      items: SCHEMA_ACTIVITE,
-      minItems: 3,
-      maxItems: 3
-    }
+    activites: { type: "array", items: SCHEMA_ACTIVITE }
   },
   required: ["activites"]
 };
@@ -100,7 +91,7 @@ function appelerGemini(prompt, cle) {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature: 0.9,
-      maxOutputTokens: 1500,   // plus généreux que pour le défi (3 activités complètes)
+      maxOutputTokens: 1500,
       thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: SCHEMA
@@ -128,7 +119,7 @@ exports.handler = async function (event) {
   let titresExclus = [];
   try {
     const donnees = JSON.parse(event.body || "{}");
-    if (donnees.pilier) pilier = donnees.pilier;
+    if (donnees.pilier)    pilier    = donnees.pilier;
     if (donnees.specialite) specialite = donnees.specialite;
     if (Array.isArray(donnees.titresExclus)) titresExclus = donnees.titresExclus;
   } catch (e) {
@@ -138,19 +129,18 @@ exports.handler = async function (event) {
   const prompt = construirePrompt(pilier, specialite, titresExclus);
   let derniereErreur = "";
 
-  // Jusqu'à 3 tentatives pour absorber les 503 / 429 du plan gratuit.
   for (let tentative = 1; tentative <= 3; tentative++) {
     try {
       const reponse = await appelerGemini(prompt, cle);
 
       if (reponse.status === 503 || reponse.status === 429) {
         derniereErreur = "Gemini occupé (" + reponse.status + ")";
-        await new Promise(function (r) { setTimeout(r, 800 * tentative); });
-        continue;
+        await new Promise(function (r) { setTimeout(r, 400 * tentative); });
+        continue;  // attendre puis réessayer
       }
       if (!reponse.ok) {
         derniereErreur = "Réponse Gemini " + reponse.status;
-        break;
+        continue;  // réessayer même sur 400, le schéma allégé devrait éviter ces cas
       }
 
       const data = await reponse.json();
@@ -159,37 +149,39 @@ exports.handler = async function (event) {
                     data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
       if (!texte) {
         derniereErreur = "Réponse Gemini vide";
-        break;
+        continue;
       }
 
       const brut = JSON.parse(texte);
-      if (!brut.activites || !Array.isArray(brut.activites) || brut.activites.length !== 3) {
-        derniereErreur = "Format inattendu";
-        break;
+      if (!brut.activites || !Array.isArray(brut.activites) || brut.activites.length < 3) {
+        derniereErreur = "Nombre d'activités insuffisant";
+        continue;
       }
+
+      const lesActivites = brut.activites.slice(0, 3);
 
       // Vérifier 3 matières distinctes.
-      const matieres = brut.activites.map(function (a) { return a.matiere; });
+      const matieres = lesActivites.map(function (a) { return a.matiere; });
       if (new Set(matieres).size !== 3) {
         derniereErreur = "Trois matières différentes attendues";
-        break;
+        continue;  // réessayer
       }
 
-      // Vérifier qu'une activité correspond exactement à la spécialité.
-      const indexSpecialite = brut.activites.findIndex(function (a) {
+      // Vérifier qu'une activité correspond à la spécialité.
+      const indexSpecialite = lesActivites.findIndex(function (a) {
         return a.matiere === specialite;
       });
       if (indexSpecialite === -1) {
         derniereErreur = "Aucune activité dans la spécialité de l'enseignant";
-        break;
+        continue;  // réessayer
       }
 
-      // Marquer "TON DOMAINE" et réordonner pour mettre la spécialité au centre.
-      brut.activites.forEach(function (a) { a.est_domaine_enseignant = false; });
-      brut.activites[indexSpecialite].est_domaine_enseignant = true;
+      // Marquer "TON DOMAINE" et placer la spécialité au centre.
+      lesActivites.forEach(function (a) { a.est_domaine_enseignant = false; });
+      lesActivites[indexSpecialite].est_domaine_enseignant = true;
 
-      const epsAct = brut.activites[indexSpecialite];
-      const autres = brut.activites.filter(function (_, i) { return i !== indexSpecialite; });
+      const epsAct  = lesActivites[indexSpecialite];
+      const autres  = lesActivites.filter(function (_, i) { return i !== indexSpecialite; });
       const ordonnees = [autres[0], epsAct, autres[1]];
 
       return {
@@ -200,6 +192,7 @@ exports.handler = async function (event) {
 
     } catch (e) {
       derniereErreur = (e && e.message) ? e.message : "Erreur inconnue";
+      // réessayer automatiquement
     }
   }
 

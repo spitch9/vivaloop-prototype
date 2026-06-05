@@ -564,45 +564,84 @@
       lucide.createIcons();   // active les icônes lucide nouvellement insérées
     }
 
+    // Point d'entrée de la fonction Netlify qui appelle Gemini.
+    const POINT_API_ACTIVITES = "/.netlify/functions/generer-activites";
+
+    // Appel à l'IA. Lève une erreur si ça échoue ou si la réponse est invalide.
+    async function genererActivitesIA(pilier, specialite, titresVus) {
+      const reponse = await fetch(POINT_API_ACTIVITES, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pilier: pilier, specialite: specialite, titresExclus: titresVus })
+      });
+      if (!reponse.ok) { throw new Error("Réponse fonction " + reponse.status); }
+      const data = await reponse.json();
+      if (!data.activites || data.activites.length !== 3) {
+        throw new Error("Activités invalides");
+      }
+      return data.activites;
+    }
+
+    // Essaie l'IA, retombe sur la banque de secours en cas d'échec.
+    async function obtenirJeu(titresVus) {
+      try {
+        const activites = await genererActivitesIA(pilierCible, profil.specialite, titresVus);
+        return {
+          groupe_id:    groupe.id,
+          pilier_cible: pilierCible,
+          activites:    activites,
+          titres_vus:   titresVus.concat(activites.map(function (a) { return a.titre; })),
+          source:       "ia"
+        };
+      } catch (e) {
+        console.warn("Génération IA indisponible, banque de secours utilisée :", e.message);
+        const acts = piocherActivites(BANQUE_ACTIVITES, profil.specialite, titresVus);
+        return {
+          groupe_id:    groupe.id,
+          pilier_cible: pilierCible,
+          activites:    acts,
+          titres_vus:   titresVus.concat(acts.map(function (a) { return a.titre; })),
+          source:       "secours"
+        };
+      }
+    }
+
+    // État d'attente pendant l'appel à l'IA.
+    function afficherChargement() {
+      const conteneur = document.getElementById("activites-container");
+      conteneur.innerHTML =
+        '<div class="text-center py-12 animate-bubble-pop">' +
+          '<div class="text-5xl mb-3 animate-mascot-bounce">🤖</div>' +
+          '<p class="text-purple-200 font-bold text-sm">Viva analyse votre groupe...</p>' +
+          '<p class="text-purple-300/60 text-xs font-bold mt-1">Préparation de 3 activités sur mesure ✨</p>' +
+        '</div>';
+    }
+
     // ====== CHARGEMENT ======
     const profil = EnsData.profil();
     const groupe = EnsData.groupe();   // premier groupe (5e A)
     const pilierCible = pilierLePlusFaible(groupe.tendances_7j);
 
-    function genererJeu(titresVus) {
-      const acts = piocherActivites(BANQUE_ACTIVITES, profil.specialite, titresVus || []);
-      return {
-        groupe_id: groupe.id,
-        pilier_cible: pilierCible,
-        activites: acts,
-        titres_vus: (titresVus || []).concat(acts.map(function (a) { return a.titre; })),
-        source: "simule"
-      };
-    }
+    rendreEntete(groupe, pilierCible);
 
     let cache = EnsData.lireCache();
-    if (!cache || cache.groupe_id !== groupe.id) {
-      cache = genererJeu([]);
-      EnsData.ecrireCache(cache);
-    }
 
-    rendreEntete(groupe, pilierCible);
-    rendreActivites(cache.activites);
+    (async function init() {
+      if (!cache || cache.groupe_id !== groupe.id) {
+        afficherChargement();
+        cache = await obtenirJeu([]);
+        EnsData.ecrireCache(cache);
+      }
+      rendreActivites(cache.activites);
+    })();
 
     // ====== ACTION : RÉGÉNÉRER ======
-    function regenererActivites() {
-      const conteneur = document.getElementById("activites-container");
-      conteneur.style.transition = "opacity 0.3s ease";
-      conteneur.style.opacity = "0.4";
-
-      setTimeout(function () {
-        cache = genererJeu(cache.titres_vus);
-        EnsData.ecrireCache(cache);
-        rendreActivites(cache.activites);
-        conteneur.style.opacity = "1";
-      }, 300);
+    async function regenererActivites() {
+      afficherChargement();
+      cache = await obtenirJeu(cache.titres_vus);
+      EnsData.ecrireCache(cache);
+      rendreActivites(cache.activites);
     }
-
   </script>
 </body>
 </html>

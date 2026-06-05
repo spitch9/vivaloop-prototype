@@ -156,7 +156,7 @@
         <div class="flex justify-center mt-2 animate-slide-down" style="animation-delay: 0.2s;">
           <div class="bg-purple-500/20 backdrop-blur-sm rounded-full pl-3 pr-1.5 py-1 border border-purple-400/40 flex items-center gap-2">
             <span class="text-purple-200 text-[10px] font-black tracking-wider">FILTRE ACTIF :</span>
-            <span class="text-white text-[10px] font-black">Groupe 6A · Sommeil 😴</span>
+            <span id="lab-filtre-actif" class="text-white text-[10px] font-black">Groupe 6A · Sommeil 😴</span>
             <button class="w-4 h-4 bg-purple-700 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
               <i data-lucide="x" class="w-2.5 h-2.5 text-purple-200" stroke-width="3.5"></i>
             </button>
@@ -202,8 +202,8 @@
                     <span class="text-amber-300 text-[10px] font-black tracking-widest">VIVA · LABORATOIRE</span>
                     <span class="text-base">✨</span>
                   </div>
-                  <p class="text-white font-bold text-xs leading-relaxed">
-                    J'ai analysé ton <span class="text-cyan-300 font-black">groupe 6A</span>. Le sommeil est leur point faible cette semaine 😴.
+                  <p id="viva-diagnostic" class="text-white font-bold text-xs leading-relaxed">
+                    <!-- rempli par JS -->
                   </p>
                   <p class="text-purple-200/90 text-xs font-bold leading-relaxed mt-1.5">
                     Voici <span class="text-amber-300 font-black">3 activités interdisciplinaires</span> que tu peux faire avec eux ⬇️
@@ -214,195 +214,14 @@
           </div>
         </div>
 
-        <!-- ====== 3. LES 3 CARTES D'ACTIVITÉS ====== -->
-        <div class="mt-4 space-y-3">
-          
-          <!-- ACTIVITÉ 1 : MATHÉMATIQUES -->
-          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.45s;">
-            <div class="btn-shadow absolute inset-0 bg-blue-950 rounded-3xl translate-y-1.5"></div>
-            
-            <div class="activity-inner relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-3xl p-4 border-2 border-blue-400/40 overflow-hidden">
-              
-              <!-- Décor -->
-              <div class="absolute -top-8 -right-8 w-32 h-32 bg-blue-300/20 rounded-full blur-2xl"></div>
-              <div class="absolute top-2 right-3 text-blue-200/30 text-[80px] font-black select-none leading-none">🔢</div>
-
-              <div class="relative">
-                <!-- Header : matière + niveau -->
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 bg-blue-500/30 rounded-xl flex items-center justify-center border border-blue-300/40">
-                      <span class="text-xl">🔢</span>
-                    </div>
-                    <div>
-                      <p class="text-blue-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
-                      <p class="text-white font-black text-xs leading-none">Mathématiques</p>
-                    </div>
-                  </div>
-                  <!-- Difficulté -->
-                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-emerald-400/40">
-                    <span class="text-emerald-300 text-[9px] font-black tracking-wider">FACILE</span>
-                  </div>
-                </div>
-
-                <!-- Titre activité -->
-                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
-                  Diagrammes des heures de sommeil
-                </h3>
-
-                <!-- Description -->
-                <p class="text-blue-100/90 text-[11px] font-bold leading-relaxed mb-3">
-                  Construire un diagramme à bandes des heures de sommeil de la classe (anonymisé) et calculer la moyenne du groupe.
-                </p>
-
-                <!-- Footer : durée + lien -->
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="clock" class="w-3 h-3 text-blue-200" stroke-width="2.5"></i>
-                      <span class="text-blue-200 text-[10px] font-black tracking-wide">30 min</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="users" class="w-3 h-3 text-blue-200" stroke-width="2.5"></i>
-                      <span class="text-blue-200 text-[10px] font-black tracking-wide">Classe entière</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 text-amber-300">
-                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
-
-          <!-- ACTIVITÉ 2 : ÉDUCATION PHYSIQUE -->
-          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.55s;">
-            <div class="btn-shadow absolute inset-0 bg-orange-950 rounded-3xl translate-y-1.5"></div>
-            
-            <div class="activity-inner relative bg-gradient-to-br from-orange-500 via-red-600 to-rose-700 rounded-3xl p-4 border-2 border-amber-400/50 overflow-hidden">
-              
-              <!-- Décor -->
-              <div class="absolute -top-8 -right-8 w-32 h-32 bg-amber-300/20 rounded-full blur-2xl"></div>
-              <div class="absolute top-2 right-3 text-orange-200/30 text-[80px] font-black select-none leading-none">🤸</div>
-              
-              <!-- Petit badge "TON DOMAINE" pour mettre en avant l'EPS -->
-              <div class="absolute top-2 right-2 bg-amber-300 rounded-full px-2 py-0.5 border-2 border-amber-200">
-                <span class="text-amber-900 text-[9px] font-black tracking-widest">⭐ TON DOMAINE</span>
-              </div>
-
-              <div class="relative">
-                <!-- Header : matière + niveau -->
-                <div class="flex items-center justify-between mb-2 mt-3">
-                  <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 bg-orange-500/30 rounded-xl flex items-center justify-center border border-orange-300/40">
-                      <span class="text-xl">🤸</span>
-                    </div>
-                    <div>
-                      <p class="text-orange-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
-                      <p class="text-white font-black text-xs leading-none">Éducation physique</p>
-                    </div>
-                  </div>
-                  <!-- Difficulté -->
-                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-emerald-400/40">
-                    <span class="text-emerald-300 text-[9px] font-black tracking-wider">FACILE</span>
-                  </div>
-                </div>
-
-                <!-- Titre activité -->
-                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
-                  Le réveil en mouvement
-                </h3>
-
-                <!-- Description -->
-                <p class="text-orange-100/95 text-[11px] font-bold leading-relaxed mb-3">
-                  Routine d'étirements doux et exercices de respiration pour démarrer la journée énergisé après une bonne nuit. Lien direct entre sommeil et activité matinale.
-                </p>
-
-                <!-- Footer -->
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="clock" class="w-3 h-3 text-orange-200" stroke-width="2.5"></i>
-                      <span class="text-orange-200 text-[10px] font-black tracking-wide">15 min</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="users" class="w-3 h-3 text-orange-200" stroke-width="2.5"></i>
-                      <span class="text-orange-200 text-[10px] font-black tracking-wide">Gymnase</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 text-amber-200">
-                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
-
-          <!-- ACTIVITÉ 3 : ARTS PLASTIQUES -->
-          <a href="#" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: 0.65s;">
-            <div class="btn-shadow absolute inset-0 bg-purple-950 rounded-3xl translate-y-1.5"></div>
-            
-            <div class="activity-inner relative bg-gradient-to-br from-fuchsia-600 via-pink-600 to-purple-700 rounded-3xl p-4 border-2 border-pink-300/40 overflow-hidden">
-              
-              <!-- Décor -->
-              <div class="absolute -top-8 -right-8 w-32 h-32 bg-pink-300/20 rounded-full blur-2xl"></div>
-              <div class="absolute top-2 right-3 text-fuchsia-200/30 text-[80px] font-black select-none leading-none">🎨</div>
-
-              <div class="relative">
-                <!-- Header : matière + niveau -->
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 bg-pink-500/30 rounded-xl flex items-center justify-center border border-pink-300/40">
-                      <span class="text-xl">🎨</span>
-                    </div>
-                    <div>
-                      <p class="text-pink-200 text-[9px] font-black tracking-widest">MATIÈRE</p>
-                      <p class="text-white font-black text-xs leading-none">Arts plastiques</p>
-                    </div>
-                  </div>
-                  <!-- Difficulté -->
-                  <div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border border-amber-400/40">
-                    <span class="text-amber-300 text-[9px] font-black tracking-wider">MOYEN</span>
-                  </div>
-                </div>
-
-                <!-- Titre activité -->
-                <h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">
-                  L'environnement idéal du sommeil
-                </h3>
-
-                <!-- Description -->
-                <p class="text-pink-100/95 text-[11px] font-bold leading-relaxed mb-3">
-                  Dessiner sa chambre idéale pour bien dormir, suivi d'une analyse en groupe sur les éléments qui favorisent un sommeil de qualité.
-                </p>
-
-                <!-- Footer -->
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="clock" class="w-3 h-3 text-pink-200" stroke-width="2.5"></i>
-                      <span class="text-pink-200 text-[10px] font-black tracking-wide">45 min</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="users" class="w-3 h-3 text-pink-200" stroke-width="2.5"></i>
-                      <span class="text-pink-200 text-[10px] font-black tracking-wide">Individuel</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 text-amber-200">
-                    <span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </a>
+        <!-- ====== 3. LES 3 CARTES D'ACTIVITÉS (injectées par JS) ====== -->
+        <div id="activites-container" class="mt-4 space-y-3">
+          <!-- Cartes générées dynamiquement -->
         </div>
 
         <!-- ====== 4. BOUTON "GÉNÉRER D'AUTRES IDÉES" ====== -->
         <div class="mt-5 animate-slide-up" style="animation-delay: 0.8s;">
-          <button class="relative block w-full btn-3d">
+          <button onclick="regenererActivites()" class="relative block w-full btn-3d">
             <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
             
             <div class="relative bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl px-4 py-3 border-2 border-purple-400/30 overflow-hidden">
@@ -490,8 +309,300 @@
     </div>
   </div>
 
+  <!-- Données enseignant -->
+  <script src="enseignant-seed.js"></script>
+  <script src="enseignant-data.js"></script>
+
   <script>
     lucide.createIcons();
+
+    // ====== PALETTE DES MATIÈRES (emoji + thème visuel) ======
+    const MATIERES = {
+      "Éducation physique": {
+        emoji: "🤸",
+        gradient: "linear-gradient(135deg, rgb(249,115,22) 0%, rgb(220,38,38) 50%, rgb(190,18,60) 100%)",
+        borderColor:     "rgba(251, 191, 36, 0.5)",
+        shadowBg:        "rgb(124, 45, 18)",
+        haloColor:       "rgba(252, 211, 77, 0.2)",
+        matiereBoxBg:    "rgba(249, 115, 22, 0.3)",
+        matiereBoxBorder:"rgba(253, 186, 116, 0.4)",
+        smallTextColor:  "rgb(254, 215, 170)",
+        descTextColor:   "rgba(255, 237, 213, 0.95)"
+      },
+      "Mathématiques": {
+        emoji: "🔢",
+        gradient: "linear-gradient(135deg, rgb(29,78,216) 0%, rgb(30,64,175) 50%, rgb(49,46,129) 100%)",
+        borderColor:     "rgba(96, 165, 250, 0.4)",
+        shadowBg:        "rgb(23, 37, 84)",
+        haloColor:       "rgba(147, 197, 253, 0.2)",
+        matiereBoxBg:    "rgba(59, 130, 246, 0.3)",
+        matiereBoxBorder:"rgba(147, 197, 253, 0.4)",
+        smallTextColor:  "rgb(191, 219, 254)",
+        descTextColor:   "rgba(219, 234, 254, 0.9)"
+      },
+      "Arts plastiques": {
+        emoji: "🎨",
+        gradient: "linear-gradient(135deg, rgb(192,38,211) 0%, rgb(219,39,119) 50%, rgb(126,34,206) 100%)",
+        borderColor:     "rgba(249, 168, 212, 0.4)",
+        shadowBg:        "rgb(59, 7, 100)",
+        haloColor:       "rgba(249, 168, 212, 0.2)",
+        matiereBoxBg:    "rgba(236, 72, 153, 0.3)",
+        matiereBoxBorder:"rgba(249, 168, 212, 0.4)",
+        smallTextColor:  "rgb(252, 231, 243)",
+        descTextColor:   "rgba(252, 231, 243, 0.95)"
+      },
+      "Français": {
+        emoji: "📚",
+        gradient: "linear-gradient(135deg, rgb(5,150,105) 0%, rgb(21,128,61) 50%, rgb(19,78,74) 100%)",
+        borderColor:     "rgba(74, 222, 128, 0.4)",
+        shadowBg:        "rgb(2, 44, 34)",
+        haloColor:       "rgba(110, 231, 183, 0.2)",
+        matiereBoxBg:    "rgba(16, 185, 129, 0.3)",
+        matiereBoxBorder:"rgba(110, 231, 183, 0.4)",
+        smallTextColor:  "rgb(167, 243, 208)",
+        descTextColor:   "rgba(209, 250, 229, 0.95)"
+      },
+      "Sciences": {
+        emoji: "🔬",
+        gradient: "linear-gradient(135deg, rgb(8,145,178) 0%, rgb(15,118,110) 50%, rgb(22,78,99) 100%)",
+        borderColor:     "rgba(103, 232, 249, 0.4)",
+        shadowBg:        "rgb(8, 51, 68)",
+        haloColor:       "rgba(103, 232, 249, 0.2)",
+        matiereBoxBg:    "rgba(6, 182, 212, 0.3)",
+        matiereBoxBorder:"rgba(103, 232, 249, 0.4)",
+        smallTextColor:  "rgb(165, 243, 252)",
+        descTextColor:   "rgba(207, 250, 254, 0.95)"
+      },
+      "Univers social": {
+        emoji: "🌍",
+        gradient: "linear-gradient(135deg, rgb(202,138,4) 0%, rgb(180,83,9) 50%, rgb(124,45,18) 100%)",
+        borderColor:     "rgba(250, 204, 21, 0.5)",
+        shadowBg:        "rgb(66, 32, 6)",
+        haloColor:       "rgba(252, 211, 77, 0.2)",
+        matiereBoxBg:    "rgba(217, 119, 6, 0.3)",
+        matiereBoxBorder:"rgba(252, 211, 77, 0.4)",
+        smallTextColor:  "rgb(253, 230, 138)",
+        descTextColor:   "rgba(254, 243, 199, 0.95)"
+      },
+      "Musique": {
+        emoji: "🎵",
+        gradient: "linear-gradient(135deg, rgb(124,58,237) 0%, rgb(126,34,206) 50%, rgb(49,46,129) 100%)",
+        borderColor:     "rgba(196, 181, 253, 0.4)",
+        shadowBg:        "rgb(46, 16, 101)",
+        haloColor:       "rgba(196, 181, 253, 0.2)",
+        matiereBoxBg:    "rgba(139, 92, 246, 0.3)",
+        matiereBoxBorder:"rgba(196, 181, 253, 0.4)",
+        smallTextColor:  "rgb(221, 214, 254)",
+        descTextColor:   "rgba(237, 233, 254, 0.95)"
+      }
+    };
+
+    // ====== PALETTE DES DIFFICULTÉS ======
+    const DIFFICULTES = {
+      FACILE:    { borderColor: "rgba(52, 211, 153, 0.4)",  textColor: "rgb(110, 231, 183)" },
+      MOYEN:     { borderColor: "rgba(251, 191, 36, 0.4)",  textColor: "rgb(252, 211, 77)"  },
+      DIFFICILE: { borderColor: "rgba(251, 113, 133, 0.4)", textColor: "rgb(253, 164, 175)" }
+    };
+
+    // ====== INFOS PAR PILIER (libellés et emoji) ======
+    const PILIERS_INFO = {
+      "SOMMEIL":      { emoji: "😴", label_court: "Sommeil",      phrase_faible: "Le sommeil est leur point faible" },
+      "ALIMENTATION": { emoji: "🍎", label_court: "Alimentation", phrase_faible: "L'alimentation est leur point faible" },
+      "ÉCRANS":       { emoji: "📱", label_court: "Écrans",       phrase_faible: "Les écrans sont leur point faible" },
+      "ÉMOTIONS":     { emoji: "💛", label_court: "Émotions",     phrase_faible: "Les émotions sont leur point faible" },
+      "ACTIVITÉ":     { emoji: "🤸", label_court: "Activité",     phrase_faible: "L'activité physique est leur point faible" }
+    };
+
+    // Conversion clé de tendance (minuscule) -> code de pilier (majuscule accentué).
+    const CLE_TENDANCE_VERS_PILIER = {
+      sommeil: "SOMMEIL", alimentation: "ALIMENTATION", activite: "ACTIVITÉ",
+      emotions: "ÉMOTIONS", ecrans: "ÉCRANS"
+    };
+
+    // ====== BANQUE D'ACTIVITÉS DE SECOURS (toutes ciblées SOMMEIL) ======
+    // Utilisée en C1 comme source unique. En C2 elle deviendra le filet de secours.
+    const BANQUE_ACTIVITES = [
+      { matiere: "Mathématiques",
+        titre: "Diagrammes des heures de sommeil",
+        description: "Construire un diagramme à bandes des heures de sommeil de la classe (anonymisé), calculer la moyenne et la comparer aux recommandations pour leur âge.",
+        duree_min: 30, audience: "Classe entière", difficulte: "FACILE" },
+      { matiere: "Éducation physique",
+        titre: "Le réveil en mouvement",
+        description: "Routine d'étirements doux et exercices de respiration pour démarrer la journée énergisé après une bonne nuit. Lien direct entre sommeil et activité matinale.",
+        duree_min: 15, audience: "Gymnase", difficulte: "FACILE" },
+      { matiere: "Éducation physique",
+        titre: "Le calme actif",
+        description: "Séance courte de yoga doux et de respirations lentes en fin d'après-midi pour préparer le corps au repos du soir.",
+        duree_min: 20, audience: "Gymnase", difficulte: "FACILE" },
+      { matiere: "Arts plastiques",
+        titre: "L'environnement idéal du sommeil",
+        description: "Dessiner sa chambre idéale pour bien dormir, suivi d'une analyse en groupe sur les éléments qui favorisent un sommeil de qualité.",
+        duree_min: 45, audience: "Individuel", difficulte: "MOYEN" },
+      { matiere: "Français",
+        titre: "Le journal du dormeur",
+        description: "Écrire un court récit à la première personne décrivant une nuit parfaite, puis lecture en duo pour comparer ce qui aide chacun à bien dormir.",
+        duree_min: 40, audience: "Duos", difficulte: "MOYEN" },
+      { matiere: "Sciences",
+        titre: "Le rôle du sommeil dans le corps",
+        description: "Petite enquête sur ce qui se passe dans le cerveau et le corps pendant le sommeil, suivie d'une affiche par équipe pour partager les découvertes.",
+        duree_min: 45, audience: "Équipes de 3", difficulte: "MOYEN" },
+      { matiere: "Univers social",
+        titre: "Les rituels du coucher dans le monde",
+        description: "Découverte de quelques traditions et rituels du sommeil à travers les cultures, et discussion sur les similitudes avec nos propres habitudes.",
+        duree_min: 35, audience: "Classe entière", difficulte: "FACILE" }
+    ];
+
+    // ====== OUTILS ======
+    function pilierLePlusFaible(tendances) {
+      const rang = { "à soutenir": 0, "à surveiller": 1, "belle énergie": 2 };
+      let cleFaible = null, meilleur = 99;
+      Object.keys(tendances || {}).forEach(function (cle) {
+        const r = rang[tendances[cle]];
+        if (typeof r === "number" && r < meilleur) { meilleur = r; cleFaible = cle; }
+      });
+      return CLE_TENDANCE_VERS_PILIER[cleFaible] || "SOMMEIL";
+    }
+
+    // Pioche 3 activités : une EPS (au centre) + deux autres matières.
+    // Tient compte des titres déjà vus pour varier au fil des régénérations.
+    function piocherActivites(banque, specialite, titresVus) {
+      const eps    = banque.filter(function (a) { return a.matiere === specialite; });
+      const autres = banque.filter(function (a) { return a.matiere !== specialite; });
+
+      function piocher(liste, n) {
+        let candidats = liste.filter(function (a) { return titresVus.indexOf(a.titre) === -1; });
+        if (candidats.length < n) { candidats = liste; }  // filet : si tout est exclu, on rouvre
+        // mélange simple
+        const melange = candidats.slice().sort(function () { return Math.random() - 0.5; });
+        return melange.slice(0, n);
+      }
+
+      const choisiesEps    = piocher(eps,    1);
+      const choisiesAutres = piocher(autres, 2);
+
+      choisiesEps.forEach(function (a)    { a.est_domaine_enseignant = true; });
+      choisiesAutres.forEach(function (a) { a.est_domaine_enseignant = false; });
+
+      // Ordre d'affichage : autre, EPS au centre (mis en valeur), autre.
+      return [choisiesAutres[0], choisiesEps[0], choisiesAutres[1]];
+    }
+
+    // ====== RENDU D'UNE CARTE ======
+    function rendreCarte(activite, indexCarte) {
+      const m = MATIERES[activite.matiere] || MATIERES["Mathématiques"];
+      const d = DIFFICULTES[activite.difficulte] || DIFFICULTES["FACILE"];
+      const delai = 0.45 + indexCarte * 0.1;
+
+      const badgeDomaine = activite.est_domaine_enseignant
+        ? '<div class="absolute top-2 right-2 bg-amber-300 rounded-full px-2 py-0.5 border-2 border-amber-200" style="z-index: 2;">' +
+            '<span class="text-amber-900 text-[9px] font-black tracking-widest">⭐ TON DOMAINE</span>' +
+          '</div>'
+        : '';
+
+      const margeHeader = activite.est_domaine_enseignant ? ' mt-3' : '';
+
+      return (
+        '<a href="#" onclick="event.preventDefault();" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: ' + delai + 's;">' +
+          '<div class="btn-shadow absolute inset-0 rounded-3xl translate-y-1.5" style="background-color: ' + m.shadowBg + ';"></div>' +
+          '<div class="activity-inner relative rounded-3xl p-4 border-2 overflow-hidden" style="background: ' + m.gradient + '; border-color: ' + m.borderColor + ';">' +
+            '<div class="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl" style="background-color: ' + m.haloColor + ';"></div>' +
+            '<div class="absolute top-2 right-3 text-[80px] font-black select-none leading-none" style="opacity: 0.25;">' + m.emoji + '</div>' +
+            badgeDomaine +
+            '<div class="relative">' +
+              '<div class="flex items-center justify-between mb-2' + margeHeader + '">' +
+                '<div class="flex items-center gap-2">' +
+                  '<div class="w-9 h-9 rounded-xl flex items-center justify-center border" style="background-color: ' + m.matiereBoxBg + '; border-color: ' + m.matiereBoxBorder + ';">' +
+                    '<span class="text-xl">' + m.emoji + '</span>' +
+                  '</div>' +
+                  '<div>' +
+                    '<p class="text-[9px] font-black tracking-widest" style="color: ' + m.smallTextColor + ';">MATIÈRE</p>' +
+                    '<p class="text-white font-black text-xs leading-none">' + activite.matiere + '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border" style="border-color: ' + d.borderColor + ';">' +
+                  '<span class="text-[9px] font-black tracking-wider" style="color: ' + d.textColor + ';">' + activite.difficulte + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">' + activite.titre + '</h3>' +
+              '<p class="text-[11px] font-bold leading-relaxed mb-3" style="color: ' + m.descTextColor + ';">' + activite.description + '</p>' +
+              '<div class="flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                  '<div class="flex items-center gap-1">' +
+                    '<i data-lucide="clock" class="w-3 h-3" style="color: ' + m.smallTextColor + ';" stroke-width="2.5"></i>' +
+                    '<span class="text-[10px] font-black tracking-wide" style="color: ' + m.smallTextColor + ';">' + activite.duree_min + ' min</span>' +
+                  '</div>' +
+                  '<div class="flex items-center gap-1">' +
+                    '<i data-lucide="users" class="w-3 h-3" style="color: ' + m.smallTextColor + ';" stroke-width="2.5"></i>' +
+                    '<span class="text-[10px] font-black tracking-wide" style="color: ' + m.smallTextColor + ';">' + activite.audience + '</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="flex items-center gap-1 text-amber-300">' +
+                  '<span class="text-[10px] font-black tracking-wide">VOIR DÉTAILS</span>' +
+                  '<i data-lucide="chevron-right" class="w-3.5 h-3.5" stroke-width="3"></i>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</a>'
+      );
+    }
+
+    // ====== RENDU DE LA PAGE ======
+    function rendreEntete(groupe, pilierCode) {
+      const info = PILIERS_INFO[pilierCode] || PILIERS_INFO["SOMMEIL"];
+      document.getElementById("lab-filtre-actif").textContent =
+        "Groupe " + groupe.nom_affichage + " · " + info.label_court + " " + info.emoji;
+      document.getElementById("viva-diagnostic").innerHTML =
+        "J'ai analysé ton " +
+        '<span class="text-cyan-300 font-black">groupe ' + groupe.nom_affichage + '</span>. ' +
+        info.phrase_faible + " cette semaine " + info.emoji + ".";
+    }
+
+    function rendreActivites(activites) {
+      const conteneur = document.getElementById("activites-container");
+      conteneur.innerHTML = activites.map(rendreCarte).join("");
+      lucide.createIcons();   // active les icônes lucide nouvellement insérées
+    }
+
+    // ====== CHARGEMENT ======
+    const profil = EnsData.profil();
+    const groupe = EnsData.groupe();   // premier groupe (5e A)
+    const pilierCible = pilierLePlusFaible(groupe.tendances_7j);
+
+    function genererJeu(titresVus) {
+      const acts = piocherActivites(BANQUE_ACTIVITES, profil.specialite, titresVus || []);
+      return {
+        groupe_id: groupe.id,
+        pilier_cible: pilierCible,
+        activites: acts,
+        titres_vus: (titresVus || []).concat(acts.map(function (a) { return a.titre; })),
+        source: "simule"
+      };
+    }
+
+    let cache = EnsData.lireCache();
+    if (!cache || cache.groupe_id !== groupe.id) {
+      cache = genererJeu([]);
+      EnsData.ecrireCache(cache);
+    }
+
+    rendreEntete(groupe, pilierCible);
+    rendreActivites(cache.activites);
+
+    // ====== ACTION : RÉGÉNÉRER ======
+    function regenererActivites() {
+      const conteneur = document.getElementById("activites-container");
+      conteneur.style.transition = "opacity 0.3s ease";
+      conteneur.style.opacity = "0.4";
+
+      setTimeout(function () {
+        cache = genererJeu(cache.titres_vus);
+        EnsData.ecrireCache(cache);
+        rendreActivites(cache.activites);
+        conteneur.style.opacity = "1";
+      }, 300);
+    }
+
   </script>
 </body>
 </html>

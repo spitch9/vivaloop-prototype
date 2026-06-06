@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Vivaloop — Détail d'activité</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Nunito', sans-serif; }
+
+    .fredoka { font-family: 'Fredoka One', cursive; }
+
+    /* Effet texte en relief (même que les autres écrans) */
+    .text-stroke {
+      -webkit-text-stroke: 1px rgba(0,0,0,0.5);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .text-stroke-strong {
+      -webkit-text-stroke: 1.5px rgba(0,0,0,0.5);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* Effet 3D sur les cartes (même que le laboratoire) */
+    .btn-3d { position: relative; }
+    .btn-shadow { transition: transform 0.15s ease; }
+    .activity-inner { transition: transform 0.15s ease; }
+
+    /* Animations d'entrée */
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    .anim-in { animation: fadeSlide 0.45s ease-out both; }
+    .anim-in-1 { animation-delay: 0.05s; }
+    .anim-in-2 { animation-delay: 0.15s; }
+    .anim-in-3 { animation-delay: 0.25s; }
+    .anim-in-4 { animation-delay: 0.35s; }
+    .anim-in-5 { animation-delay: 0.45s; }
+
+    /* Scrollbar invisible */
+    #scroll-zone::-webkit-scrollbar { display: none; }
+    #scroll-zone { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+
+<body class="bg-slate-900 flex items-center justify-center min-h-screen">
+
+  <!-- Cadre téléphone -->
+  <div class="relative w-[393px] min-h-screen bg-slate-950 overflow-hidden shadow-2xl shadow-black/60">
+
+    <!-- ====== ÉTAT : CHARGEMENT ====== -->
+    <div id="state-loading" class="absolute inset-0 flex items-center justify-center">
+      <p class="text-purple-400 font-bold animate-pulse text-sm">Chargement...</p>
+    </div>
+
+    <!-- ====== ÉTAT : ERREUR ====== -->
+    <div id="state-error" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-4 px-8">
+      <div class="text-4xl">😕</div>
+      <p class="text-slate-300 font-bold text-sm text-center">Cette activité est introuvable.<br>Le laboratoire n'a peut-être pas encore généré d'activités.</p>
+      <a href="enseignant-laboratoire.html"
+         class="mt-2 flex items-center gap-2 bg-slate-800 text-cyan-300 font-black text-sm px-5 py-3 rounded-2xl border border-slate-700">
+        <i data-lucide="arrow-left" class="w-4 h-4" stroke-width="2.5"></i>
+        Retour au laboratoire
+      </a>
+    </div>
+
+    <!-- ====== ÉTAT : CONTENU ====== -->
+    <div id="state-content" class="hidden flex flex-col h-screen">
+
+      <!-- En-tête fixe -->
+      <div class="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-sm px-4 py-3 flex items-center gap-3 border-b border-slate-800/60 shrink-0">
+        <a href="enseignant-laboratoire.html"
+           class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center border border-slate-700 transition-colors shrink-0">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-300" stroke-width="2.5"></i>
+        </a>
+        <div class="flex-1 min-w-0">
+          <p class="text-slate-500 text-[9px] font-black tracking-widest uppercase">Activité pédagogique</p>
+          <p id="detail-header-matiere" class="text-white font-black text-sm leading-tight truncate"></p>
+          <p id="detail-header-contexte" class="text-slate-500 text-[10px] font-bold leading-none mt-0.5"></p>
+        </div>
+        <div id="detail-header-badge" class="shrink-0"></div>
+      </div>
+
+      <!-- Zone défilante -->
+      <div id="scroll-zone" class="flex-1 overflow-y-auto pb-6">
+
+        <!-- Carte héro (grande version de la carte du labo) -->
+        <div class="px-4 pt-4 anim-in anim-in-1">
+          <div class="btn-3d relative">
+            <div id="hero-shadow" class="btn-shadow absolute inset-0 rounded-3xl translate-y-2"></div>
+            <div id="hero-card" class="activity-inner relative rounded-3xl p-5 border-2 overflow-hidden">
+
+              <!-- Halo décoratif -->
+              <div id="hero-halo" class="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl"></div>
+              <!-- Emoji géant en fond -->
+              <div id="hero-emoji-bg" class="absolute top-3 right-4 font-black select-none leading-none"
+                   style="font-size: 110px; opacity: 0.2; line-height:1;">
+              </div>
+
+              <div class="relative">
+                <!-- Ligne haute : badge matière + difficulté -->
+                <div id="hero-top-row" class="flex items-center justify-between mb-4">
+                  <!-- Badge matière -->
+                  <div id="hero-matiere-box" class="flex items-center gap-2 rounded-xl px-3 py-1.5 border">
+                    <span id="hero-matiere-emoji" class="text-xl leading-none"></span>
+                    <div>
+                      <p id="hero-matiere-label" class="text-[9px] font-black tracking-widest leading-none">MATIÈRE</p>
+                      <p id="hero-matiere-nom" class="font-black text-xs leading-none text-white mt-0.5"></p>
+                    </div>
+                  </div>
+                  <!-- Badge difficulté -->
+                  <div id="hero-difficulte-box"
+                       class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-3 py-1 border">
+                    <span id="hero-difficulte-txt" class="text-[9px] font-black tracking-wider"></span>
+                  </div>
+                </div>
+
+                <!-- Badge TON DOMAINE (conditionnel) -->
+                <div id="hero-domaine-badge" class="hidden mb-3"></div>
+
+                <!-- Titre -->
+                <h1 id="hero-titre"
+                    class="text-white font-black leading-tight tracking-tight text-stroke-strong mb-4"
+                    style="font-size: 1.6rem; font-family:'Fredoka One',cursive;">
+                </h1>
+
+                <!-- Description complète -->
+                <p id="hero-description" class="text-sm font-bold leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grille d'infos (durée, format, niveau) -->
+        <div class="grid grid-cols-3 gap-3 px-4 mt-4 anim-in anim-in-2">
+
+          <div class="bg-slate-900 rounded-2xl p-3 text-center border border-slate-800">
+            <div class="flex justify-center mb-1.5">
+              <i data-lucide="clock" class="w-4 h-4 text-cyan-400" stroke-width="2.5"></i>
+            </div>
+            <p id="info-duree" class="text-white font-black text-lg leading-none"></p>
+            <p class="text-slate-500 text-[9px] font-black tracking-wider mt-1 uppercase">Durée</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-2xl p-3 text-center border border-slate-800">
+            <div class="flex justify-center mb-1.5">
+              <i data-lucide="users" class="w-4 h-4 text-cyan-400" stroke-width="2.5"></i>
+            </div>
+            <p id="info-audience" class="text-white font-black text-xs leading-tight"></p>
+            <p class="text-slate-500 text-[9px] font-black tracking-wider mt-1 uppercase">Format</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-2xl p-3 text-center border border-slate-800">
+            <div class="flex justify-center mb-1.5">
+              <i data-lucide="bar-chart-2" class="w-4 h-4 text-cyan-400" stroke-width="2.5"></i>
+            </div>
+            <p id="info-difficulte" class="font-black text-xs leading-tight"></p>
+            <p class="text-slate-500 text-[9px] font-black tracking-wider mt-1 uppercase">Niveau</p>
+          </div>
+
+        </div>
+
+        <!-- Connexion au groupe (Viva insight) -->
+        <div class="mx-4 mt-4 anim-in anim-in-3">
+          <div class="bg-gradient-to-br from-purple-900/40 via-slate-900/60 to-cyan-900/30
+                      rounded-2xl p-4 border border-purple-700/40">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl shrink-0 mt-0.5">🤖</div>
+              <div>
+                <p class="text-purple-300 text-[9px] font-black tracking-widest mb-2 uppercase">
+                  Viva · Connexion au groupe
+                </p>
+                <div class="flex items-center gap-1.5 mb-2">
+                  <span class="text-slate-400 text-[10px] font-black uppercase tracking-wider">Pilier ciblé :</span>
+                  <span id="insight-pilier-emoji" class="text-sm leading-none"></span>
+                  <span id="insight-pilier-label"
+                        class="bg-slate-800 text-cyan-300 text-[9px] font-black tracking-wider px-2 py-0.5 rounded-full border border-slate-700">
+                  </span>
+                </div>
+                <p id="insight-texte" class="text-slate-300 text-xs font-bold leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton retour -->
+        <div class="px-4 mt-4 anim-in anim-in-4">
+          <a href="enseignant-laboratoire.html"
+             class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl
+                    border-2 border-slate-700 text-slate-300 font-black text-sm
+                    hover:border-cyan-700 hover:text-cyan-300 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4" stroke-width="2.5"></i>
+            Retour au laboratoire
+          </a>
+        </div>
+
+      </div><!-- /scroll-zone -->
+    </div><!-- /state-content -->
+
+  </div><!-- /phone frame -->
+
+  <!-- Données enseignant -->
+  <script src="enseignant-seed.js"></script>
+  <script src="enseignant-data.js"></script>
+
+  <script>
+    lucide.createIcons();
+
+    // ====== PALETTES (identiques au laboratoire) ======
+    const MATIERES = {
+      "Éducation physique": {
+        emoji: "🤸",
+        gradient: "linear-gradient(135deg, rgb(249,115,22) 0%, rgb(220,38,38) 50%, rgb(190,18,60) 100%)",
+        borderColor: "rgba(251,191,36,0.5)", shadowBg: "rgb(124,45,18)",
+        haloColor: "rgba(252,211,77,0.2)", matiereBoxBg: "rgba(249,115,22,0.3)",
+        matiereBoxBorder: "rgba(253,186,116,0.4)", smallTextColor: "rgb(254,215,170)",
+        descTextColor: "rgba(255,237,213,0.95)"
+      },
+      "Mathématiques": {
+        emoji: "🔢",
+        gradient: "linear-gradient(135deg, rgb(29,78,216) 0%, rgb(30,64,175) 50%, rgb(49,46,129) 100%)",
+        borderColor: "rgba(96,165,250,0.4)", shadowBg: "rgb(23,37,84)",
+        haloColor: "rgba(147,197,253,0.2)", matiereBoxBg: "rgba(59,130,246,0.3)",
+        matiereBoxBorder: "rgba(147,197,253,0.4)", smallTextColor: "rgb(191,219,254)",
+        descTextColor: "rgba(219,234,254,0.9)"
+      },
+      "Arts plastiques": {
+        emoji: "🎨",
+        gradient: "linear-gradient(135deg, rgb(192,38,211) 0%, rgb(219,39,119) 50%, rgb(126,34,206) 100%)",
+        borderColor: "rgba(249,168,212,0.4)", shadowBg: "rgb(59,7,100)",
+        haloColor: "rgba(249,168,212,0.2)", matiereBoxBg: "rgba(236,72,153,0.3)",
+        matiereBoxBorder: "rgba(249,168,212,0.4)", smallTextColor: "rgb(252,231,243)",
+        descTextColor: "rgba(252,231,243,0.95)"
+      },
+      "Français": {
+        emoji: "📚",
+        gradient: "linear-gradient(135deg, rgb(5,150,105) 0%, rgb(21,128,61) 50%, rgb(19,78,74) 100%)",
+        borderColor: "rgba(74,222,128,0.4)", shadowBg: "rgb(2,44,34)",
+        haloColor: "rgba(110,231,183,0.2)", matiereBoxBg: "rgba(16,185,129,0.3)",
+        matiereBoxBorder: "rgba(110,231,183,0.4)", smallTextColor: "rgb(167,243,208)",
+        descTextColor: "rgba(209,250,229,0.95)"
+      },
+      "Sciences": {
+        emoji: "🔬",
+        gradient: "linear-gradient(135deg, rgb(8,145,178) 0%, rgb(15,118,110) 50%, rgb(22,78,99) 100%)",
+        borderColor: "rgba(103,232,249,0.4)", shadowBg: "rgb(8,51,68)",
+        haloColor: "rgba(103,232,249,0.2)", matiereBoxBg: "rgba(6,182,212,0.3)",
+        matiereBoxBorder: "rgba(103,232,249,0.4)", smallTextColor: "rgb(165,243,252)",
+        descTextColor: "rgba(207,250,254,0.95)"
+      },
+      "Univers social": {
+        emoji: "🌍",
+        gradient: "linear-gradient(135deg, rgb(202,138,4) 0%, rgb(180,83,9) 50%, rgb(124,45,18) 100%)",
+        borderColor: "rgba(250,204,21,0.5)", shadowBg: "rgb(66,32,6)",
+        haloColor: "rgba(252,211,77,0.2)", matiereBoxBg: "rgba(217,119,6,0.3)",
+        matiereBoxBorder: "rgba(252,211,77,0.4)", smallTextColor: "rgb(253,230,138)",
+        descTextColor: "rgba(254,243,199,0.95)"
+      },
+      "Musique": {
+        emoji: "🎵",
+        gradient: "linear-gradient(135deg, rgb(124,58,237) 0%, rgb(126,34,206) 50%, rgb(49,46,129) 100%)",
+        borderColor: "rgba(196,181,253,0.4)", shadowBg: "rgb(46,16,101)",
+        haloColor: "rgba(196,181,253,0.2)", matiereBoxBg: "rgba(139,92,246,0.3)",
+        matiereBoxBorder: "rgba(196,181,253,0.4)", smallTextColor: "rgb(221,214,254)",
+        descTextColor: "rgba(237,233,254,0.95)"
+      }
+    };
+
+    const DIFFICULTES = {
+      FACILE:    { borderColor: "rgba(52,211,153,0.4)",  textColor: "rgb(110,231,183)" },
+      MOYEN:     { borderColor: "rgba(251,191,36,0.4)",  textColor: "rgb(252,211,77)"  },
+      DIFFICILE: { borderColor: "rgba(251,113,133,0.4)", textColor: "rgb(253,164,175)" }
+    };
+
+    const PILIERS_INFO = {
+      "SOMMEIL":      { emoji: "😴", label_court: "Sommeil"      },
+      "ALIMENTATION": { emoji: "🍎", label_court: "Alimentation" },
+      "ÉCRANS":       { emoji: "📱", label_court: "Écrans"       },
+      "ÉMOTIONS":     { emoji: "💛", label_court: "Émotions"     },
+      "ACTIVITÉ":     { emoji: "🤸", label_court: "Activité phys." }
+    };
+
+    const VIVA_INSIGHTS = {
+      "SOMMEIL":
+        "Cette activité aidera ton groupe à mieux comprendre les mécanismes du sommeil et à développer des habitudes bénéfiques. Une approche concrète qui facilite le transfert dans leur quotidien.",
+      "ALIMENTATION":
+        "En abordant l'alimentation de façon ludique et interdisciplinaire, cette activité encourage les élèves à développer un rapport positif et curieux avec ce qu'ils mangent.",
+      "ÉCRANS":
+        "Cette activité propose une réflexion sur l'usage des écrans de manière non culpabilisante, en développant chez les élèves des stratégies concrètes pour équilibrer leur temps.",
+      "ÉMOTIONS":
+        "En donnant des mots et des outils pour reconnaître et exprimer leurs émotions, cette activité crée un espace de sécurité émotionnelle propice aux apprentissages.",
+      "ACTIVITÉ":
+        "Cette activité associe le mouvement à l'apprentissage disciplinaire, renforçant à la fois les compétences visées et les habitudes d'activité physique au quotidien."
+    };
+
+    // ====== LOGIQUE D'AFFICHAGE ======
+    function montrer(etat) {
+      ["loading","error","content"].forEach(function (e) {
+        var el = document.getElementById("state-" + e);
+        if (el) el.classList.add("hidden");
+      });
+      var cible = document.getElementById("state-" + etat);
+      if (cible) cible.classList.remove("hidden");
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var index  = parseInt(params.get("index"), 10);
+    var cache  = EnsData.lireCache();
+
+    if (!cache || !cache.activites || isNaN(index) || index < 0 || index >= cache.activites.length) {
+      montrer("error");
+    } else {
+      var act    = cache.activites[index];
+      var pilier = cache.pilier_cible || "SOMMEIL";
+      var groupe = EnsData.groupe();
+      var m      = MATIERES[act.matiere]     || MATIERES["Mathématiques"];
+      var d      = DIFFICULTES[act.difficulte] || DIFFICULTES["FACILE"];
+      var pi     = PILIERS_INFO[pilier]      || PILIERS_INFO["SOMMEIL"];
+
+      // --- En-tête ---
+      var headerMat = document.getElementById("detail-header-matiere");
+      headerMat.textContent = act.matiere;
+      headerMat.style.color = m.smallTextColor;
+
+      document.getElementById("detail-header-contexte").textContent =
+        "Groupe " + groupe.nom_affichage + " · " + pi.label_court + " " + pi.emoji;
+
+      if (act.est_domaine_enseignant) {
+        document.getElementById("detail-header-badge").innerHTML =
+          '<span class="bg-amber-300 text-amber-900 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-full border-2 border-amber-200 whitespace-nowrap">⭐ TON DOMAINE</span>';
+      }
+
+      // --- Carte héro ---
+      var heroCard = document.getElementById("hero-card");
+      heroCard.style.background   = m.gradient;
+      heroCard.style.borderColor  = m.borderColor;
+
+      document.getElementById("hero-shadow").style.backgroundColor = m.shadowBg;
+      document.getElementById("hero-halo").style.backgroundColor   = m.haloColor;
+      document.getElementById("hero-emoji-bg").textContent         = m.emoji;
+
+      var mBox = document.getElementById("hero-matiere-box");
+      mBox.style.backgroundColor = m.matiereBoxBg;
+      mBox.style.borderColor     = m.matiereBoxBorder;
+
+      document.getElementById("hero-matiere-emoji").textContent = m.emoji;
+      var matLabel = document.getElementById("hero-matiere-label");
+      matLabel.style.color = m.smallTextColor;
+
+      document.getElementById("hero-matiere-nom").textContent = act.matiere;
+
+      var diffBox = document.getElementById("hero-difficulte-box");
+      diffBox.style.borderColor = d.borderColor;
+      var diffTxt = document.getElementById("hero-difficulte-txt");
+      diffTxt.textContent   = act.difficulte;
+      diffTxt.style.color   = d.textColor;
+
+      if (act.est_domaine_enseignant) {
+        var badge = document.getElementById("hero-domaine-badge");
+        badge.classList.remove("hidden");
+        badge.innerHTML =
+          '<div class="inline-flex items-center gap-1.5 bg-amber-300/20 border border-amber-400/50 rounded-full px-3 py-1">' +
+            '<span class="text-amber-300 text-[9px] font-black tracking-widest">⭐ TON DOMAINE</span>' +
+          '</div>';
+      }
+
+      document.getElementById("hero-titre").textContent = act.titre;
+
+      var desc = document.getElementById("hero-description");
+      desc.textContent  = act.description;
+      desc.style.color  = m.descTextColor;
+
+      // Ajuster le top-row si badge TON DOMAINE présent
+      if (act.est_domaine_enseignant) {
+        document.getElementById("hero-top-row").classList.add("mb-2");
+      }
+
+      // --- Info chips ---
+      document.getElementById("info-duree").textContent     = act.duree_min + " min";
+      document.getElementById("info-audience").textContent  = act.audience;
+      var infoNiveau = document.getElementById("info-difficulte");
+      infoNiveau.textContent  = act.difficulte;
+      infoNiveau.style.color  = d.textColor;
+
+      // --- Viva insight ---
+      document.getElementById("insight-pilier-emoji").textContent = pi.emoji;
+      document.getElementById("insight-pilier-label").textContent = pi.label_court;
+      document.getElementById("insight-texte").textContent        =
+        VIVA_INSIGHTS[pilier] || "";
+
+      montrer("content");
+      lucide.createIcons();   // re-processer les icônes insérées dynamiquement
+    }
+  </script>
+</body>
+</html>

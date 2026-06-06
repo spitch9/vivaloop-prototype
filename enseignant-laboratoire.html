@@ -502,7 +502,7 @@
       const margeHeader = activite.est_domaine_enseignant ? ' mt-3' : '';
 
       return (
-        '<a href="#" onclick="event.preventDefault();" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: ' + delai + 's;">' +
+        '<a href="activite-detail.html?index=' + indexCarte + '" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: ' + delai + 's;">' +
           '<div class="btn-shadow absolute inset-0 rounded-3xl translate-y-1.5" style="background-color: ' + m.shadowBg + ';"></div>' +
           '<div class="activity-inner relative rounded-3xl p-4 border-2 overflow-hidden" style="background: ' + m.gradient + '; border-color: ' + m.borderColor + ';">' +
             '<div class="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl" style="background-color: ' + m.haloColor + ';"></div>' +

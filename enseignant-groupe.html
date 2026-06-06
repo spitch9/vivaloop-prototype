@@ -82,13 +82,53 @@
     .btn-3d:active .btn-shadow { opacity: 0; }
     
     ::-webkit-scrollbar { display: none; }
+
+    /* ====== CHANTIER D : MODE PLEINE PAGE DESKTOP (≥ 1024px) ====== */
+    @media (min-width: 1024px) {
+      body { display: block !important; padding: 0 !important; }
+      #teacher-frame {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      #content-wrapper { height: auto !important; }
+      #phone-notch  { display: none !important; }
+      #bottom-nav   { display: none !important; }
+      #desktop-nav  { display: flex !important; }
+      .scroll-content {
+        overflow-y: visible !important;
+        height: auto !important;
+        flex: none !important;
+        max-width: 1024px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-bottom: 60px !important;
+        padding-left: 2.5rem !important;
+        padding-right: 2.5rem !important;
+      }
+      /* Grille des groupes : 2 colonnes -> 3 colonnes */
+      #groupes-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+      }
+      /* Activités laboratoire : empilées -> 3 colonnes côte à côte */
+      #activites-container {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 1.5rem !important;
+      }
+    }
   </style>
 </head>
 
 <body class="min-h-screen w-full flex items-center justify-center p-4">
 
   <!-- ====== CADRE TÉLÉPHONE ====== -->
-  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+  <div id="teacher-frame" class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
        style="box-shadow: 0 50px 100px -20px rgba(20, 184, 166, 0.3), 0 30px 60px -30px rgba(59, 130, 246, 0.4);">
     
     <!-- ====== FOND ANTHRACITE / CYAN-TEAL ====== -->
@@ -103,10 +143,33 @@
     </div>
 
     <!-- ====== CONTENU ====== -->
-    <div class="relative h-full flex flex-col">
-      
+    <div id="content-wrapper" class="relative h-full flex flex-col">
+      <!-- ====== NAVIGATION DESKTOP ====== -->
+      <nav id="desktop-nav" class="hidden sticky top-0 z-50 border-b border-white/10 w-full"
+           style="background: rgba(10,20,36,0.97); backdrop-filter: blur(16px);">
+        <div class="px-8 py-3 flex items-center gap-4">
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-cyan-300 text-lg select-none">🌀</span>
+            <span class="text-white font-black text-base tracking-tight">Vivaloop</span>
+          </div>
+          <div class="flex items-center gap-2 flex-1 ml-2">
+            <span class="text-2xl select-none">👨‍🏫</span>
+            <span class="text-white font-bold text-sm">M. Martin</span>
+            <span class="text-cyan-400/60 text-xs font-bold">· EPS · École Saint-Exupéry</span>
+          </div>
+          <nav class="flex items-center gap-1">
+            <a href="enseignant-accueil.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">ACCUEIL</a>
+            <a href="enseignant-groupe.html" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider">GROUPES</a>
+            <a href="enseignant-laboratoire.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">LABO IA</a>
+            <a href="enseignant-recompenses.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">BADGES</a>
+          </nav>
+          <a href="connexion.html" class="ml-3 p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5">
+            <i data-lucide="log-out" class="w-4 h-4" stroke-width="2.5"></i>
+          </a>
+        </div>
+      </nav>
       <!-- Notch -->
-      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+      <div id="phone-notch" class="flex justify-center pt-3 pb-2 flex-shrink-0">
         <div class="w-32 h-6 bg-black rounded-full"></div>
       </div>
 
@@ -154,7 +217,7 @@
       </div>
 
       <!-- ====== CONTENU SCROLLABLE ====== -->
-      <div class="flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
+      <div class="scroll-content flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
         
         <!-- ====== 2. CARTE SYNTHÈSE DU GROUPE ====== -->
         <div class="animate-slide-up" style="animation-delay: 0.3s;">
@@ -479,7 +542,7 @@
       </div>
 
       <!-- ====== 6. NAVIGATION FIXE BAS ====== -->
-      <div class="absolute bottom-0 left-0 right-0">
+      <div id="bottom-nav" class="absolute bottom-0 left-0 right-0">
         <div class="absolute inset-0 bg-gradient-to-t from-[#0a1424] via-[#0a1424]/95 to-transparent backdrop-blur-md h-24 -top-6"></div>
         
         <div class="relative px-4 pb-4 pt-2">

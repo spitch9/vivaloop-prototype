@@ -84,13 +84,53 @@
     .activity-inner { transition: transform 0.2s ease; }
     
     ::-webkit-scrollbar { display: none; }
+
+    /* ====== CHANTIER D : MODE PLEINE PAGE DESKTOP (≥ 1024px) ====== */
+    @media (min-width: 1024px) {
+      body { display: block !important; padding: 0 !important; }
+      #teacher-frame {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      #content-wrapper { height: auto !important; }
+      #phone-notch  { display: none !important; }
+      #bottom-nav   { display: none !important; }
+      #desktop-nav  { display: flex !important; }
+      .scroll-content {
+        overflow-y: visible !important;
+        height: auto !important;
+        flex: none !important;
+        max-width: 1024px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-bottom: 60px !important;
+        padding-left: 2.5rem !important;
+        padding-right: 2.5rem !important;
+      }
+      /* Grille des groupes : 2 colonnes -> 3 colonnes */
+      #groupes-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+      }
+      /* Activités laboratoire : empilées -> 3 colonnes côte à côte */
+      #activites-container {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 1.5rem !important;
+      }
+    }
   </style>
 </head>
 
 <body class="min-h-screen w-full flex items-center justify-center p-4">
 
   <!-- ====== CADRE TÉLÉPHONE ====== -->
-  <div class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
+  <div id="teacher-frame" class="relative w-full max-w-[420px] h-[844px] rounded-[3rem] overflow-hidden border-[10px] border-zinc-900"
        style="box-shadow: 0 50px 100px -20px rgba(168, 85, 247, 0.4), 0 30px 60px -30px rgba(20, 184, 166, 0.3);">
     
     <!-- ====== FOND ANTHRACITE / CYAN-VIOLET (univers IA) ====== -->
@@ -111,10 +151,33 @@
     </div>
 
     <!-- ====== CONTENU ====== -->
-    <div class="relative h-full flex flex-col">
-      
+    <div id="content-wrapper" class="relative h-full flex flex-col">
+      <!-- ====== NAVIGATION DESKTOP ====== -->
+      <nav id="desktop-nav" class="hidden sticky top-0 z-50 border-b border-white/10 w-full"
+           style="background: rgba(10,20,36,0.97); backdrop-filter: blur(16px);">
+        <div class="px-8 py-3 flex items-center gap-4">
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-cyan-300 text-lg select-none">🌀</span>
+            <span class="text-white font-black text-base tracking-tight">Vivaloop</span>
+          </div>
+          <div class="flex items-center gap-2 flex-1 ml-2">
+            <span class="text-2xl select-none">👨‍🏫</span>
+            <span class="text-white font-bold text-sm">M. Martin</span>
+            <span class="text-cyan-400/60 text-xs font-bold">· EPS · École Saint-Exupéry</span>
+          </div>
+          <nav class="flex items-center gap-1">
+            <a href="enseignant-accueil.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">ACCUEIL</a>
+            <a href="enseignant-groupe.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">GROUPES</a>
+            <a href="enseignant-laboratoire.html" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider">LABO IA</a>
+            <a href="enseignant-recompenses.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">BADGES</a>
+          </nav>
+          <a href="connexion.html" class="ml-3 p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5">
+            <i data-lucide="log-out" class="w-4 h-4" stroke-width="2.5"></i>
+          </a>
+        </div>
+      </nav>
       <!-- Notch -->
-      <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
+      <div id="phone-notch" class="flex justify-center pt-3 pb-2 flex-shrink-0">
         <div class="w-32 h-6 bg-black rounded-full"></div>
       </div>
 
@@ -165,7 +228,7 @@
       </div>
 
       <!-- ====== CONTENU SCROLLABLE ====== -->
-      <div class="flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
+      <div class="scroll-content flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 110px;">
         
         <!-- ====== 2. MASCOTTE IA AVEC DIAGNOSTIC ====== -->
         <div class="animate-slide-up" style="animation-delay: 0.3s;">
@@ -265,7 +328,7 @@
       </div>
 
       <!-- ====== 6. NAVIGATION FIXE BAS ====== -->
-      <div class="absolute bottom-0 left-0 right-0">
+      <div id="bottom-nav" class="absolute bottom-0 left-0 right-0">
         <div class="absolute inset-0 bg-gradient-to-t from-[#0a1424] via-[#0a1424]/95 to-transparent backdrop-blur-md h-24 -top-6"></div>
         
         <div class="relative px-4 pb-4 pt-2">
@@ -463,31 +526,49 @@
       return CLE_TENDANCE_VERS_PILIER[cleFaible] || "SOMMEIL";
     }
 
-    // Pioche 3 activités : une EPS (au centre) + deux autres matières.
-    // Tient compte des titres déjà vus pour varier au fil des régénérations.
-    function piocherActivites(banque, specialite, titresVus) {
-      const eps    = banque.filter(function (a) { return a.matiere === specialite; });
-      const autres = banque.filter(function (a) { return a.matiere !== specialite; });
+    // Pioche 3 activités selon le rôle de l'enseignant.e.
+    // - Spécialiste : une activité dans la spécialité au centre + "TON DOMAINE".
+    // - Titulaire   : 3 matières libres, pas de contrainte de spécialité ni de badge.
+    function piocherActivites(banque, specialite, role, titresVus) {
+      const exclus = titresVus || [];
 
+      function melanger(liste) {
+        return liste.slice().sort(function () { return Math.random() - 0.5; });
+      }
       function piocher(liste, n) {
-        let candidats = liste.filter(function (a) { return titresVus.indexOf(a.titre) === -1; });
-        if (candidats.length < n) { candidats = liste; }  // filet : si tout est exclu, on rouvre
-        // mélange simple
-        const melange = candidats.slice().sort(function () { return Math.random() - 0.5; });
-        return melange.slice(0, n);
+        var c = liste.filter(function (a) { return exclus.indexOf(a.titre) === -1; });
+        if (c.length < n) c = liste;
+        return melanger(c).slice(0, n);
       }
 
-      const choisiesEps    = piocher(eps,    1);
-      const choisiesAutres = piocher(autres, 2);
+      if (role !== "specialiste") {
+        // Titulaire : 3 matières différentes, aucun badge "TON DOMAINE"
+        var candidats = melanger(banque.filter(function (a) { return exclus.indexOf(a.titre) === -1; }));
+        var selection = [], vues = [];
+        candidats.forEach(function (a) {
+          if (vues.indexOf(a.matiere) === -1 && selection.length < 3) {
+            selection.push(a); vues.push(a.matiere);
+          }
+        });
+        var resultat = selection.length === 3 ? selection : melanger(banque).slice(0, 3);
+        resultat.forEach(function (a) { a.est_domaine_enseignant = false; });
+        return resultat;
+      }
 
-      choisiesEps.forEach(function (a)    { a.est_domaine_enseignant = true; });
+      // Spécialiste : une activité EPS au centre
+      var eps    = banque.filter(function (a) { return a.matiere === specialite; });
+      var autres = banque.filter(function (a) { return a.matiere !== specialite; });
+
+      var choisiesEps    = piocher(eps,    1);
+      var choisiesAutres = piocher(autres, 2);
+
+      choisiesEps.forEach(function (a)    { a.est_domaine_enseignant = true;  });
       choisiesAutres.forEach(function (a) { a.est_domaine_enseignant = false; });
 
-      // Ordre d'affichage : autre, EPS au centre (mis en valeur), autre.
       return [choisiesAutres[0], choisiesEps[0], choisiesAutres[1]];
     }
 
-    // ====== RENDU D'UNE CARTE ======
+        // ====== RENDU D'UNE CARTE ======
     function rendreCarte(activite, indexCarte) {
       const m = MATIERES[activite.matiere] || MATIERES["Mathématiques"];
       const d = DIFFICULTES[activite.difficulte] || DIFFICULTES["FACILE"];
@@ -568,11 +649,11 @@
     const POINT_API_ACTIVITES = "/.netlify/functions/generer-activites";
 
     // Appel à l'IA. Lève une erreur si ça échoue ou si la réponse est invalide.
-    async function genererActivitesIA(pilier, specialite, titresVus) {
+    async function genererActivitesIA(pilier, specialite, role, niveauScolaire, titresVus) {
       const reponse = await fetch(POINT_API_ACTIVITES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pilier: pilier, specialite: specialite, titresExclus: titresVus })
+        body: JSON.stringify({ pilier: pilier, specialite: specialite, role: role, niveauScolaire: niveauScolaire, titresExclus: titresVus })
       });
       if (!reponse.ok) { throw new Error("Réponse fonction " + reponse.status); }
       const data = await reponse.json();
@@ -585,7 +666,7 @@
     // Essaie l'IA, retombe sur la banque de secours en cas d'échec.
     async function obtenirJeu(titresVus) {
       try {
-        const activites = await genererActivitesIA(pilierCible, profil.specialite, titresVus);
+        const activites = await genererActivitesIA(pilierCible, profil.specialite, profil.role || 'specialiste', groupe.niveau_scolaire, titresVus);
         return {
           groupe_id:    groupe.id,
           pilier_cible: pilierCible,
@@ -595,7 +676,7 @@
         };
       } catch (e) {
         console.warn("Génération IA indisponible, banque de secours utilisée :", e.message);
-        const acts = piocherActivites(BANQUE_ACTIVITES, profil.specialite, titresVus);
+        const acts = piocherActivites(BANQUE_ACTIVITES, profil.specialite, profil.role || 'specialiste', titresVus);
         return {
           groupe_id:    groupe.id,
           pilier_cible: pilierCible,

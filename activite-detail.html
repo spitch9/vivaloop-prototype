@@ -43,13 +43,59 @@
     /* Scrollbar invisible */
     #scroll-zone::-webkit-scrollbar { display: none; }
     #scroll-zone { -ms-overflow-style: none; scrollbar-width: none; }
+    /* ====== CHANTIER D : MODE PLEINE PAGE DESKTOP (≥ 1024px) ====== */
+    @media (min-width: 1024px) {
+      body { display: block !important; padding: 0 !important; background: linear-gradient(135deg, #0a1424 0%, #0e1e2e 50%, #0e2230 100%) !important; }
+      #teacher-frame {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #phone-notch { display: none !important; }
+      #desktop-nav { display: flex !important; }
+      #state-content { height: auto !important; min-height: 100vh; }
+      #scroll-zone {
+        overflow-y: visible !important;
+        height: auto !important;
+        flex: none !important;
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 2rem 2.5rem 4rem 2.5rem !important;
+      }
+    }
   </style>
 </head>
 
 <body class="bg-slate-900 flex items-center justify-center min-h-screen">
 
   <!-- Cadre téléphone -->
-  <div class="relative w-[393px] min-h-screen bg-slate-950 overflow-hidden shadow-2xl shadow-black/60">
+  <div id="teacher-frame" class="relative w-[430px] shadow-2xl shadow-black/70 min-h-screen bg-slate-950 overflow-hidden shadow-2xl shadow-black/60">
+
+      <!-- ====== NAVIGATION DESKTOP ====== -->
+      <nav id="desktop-nav" class="hidden sticky top-0 z-50 border-b border-white/10 w-full"
+           style="background: rgba(10,20,36,0.97); backdrop-filter: blur(16px);">
+        <div class="px-8 py-3 flex items-center gap-4">
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-cyan-300 text-lg select-none">🌀</span>
+            <span class="text-white font-black text-base tracking-tight">Vivaloop</span>
+          </div>
+          <div class="flex items-center gap-2 flex-1 ml-2">
+            <span class="text-2xl select-none">👨‍🏫</span>
+            <span class="text-white font-bold text-sm">M. Martin</span>
+            <span class="text-cyan-400/60 text-xs font-bold">· EPS · École Saint-Exupéry</span>
+          </div>
+          <nav class="flex items-center gap-1">
+            <a href="enseignant-accueil.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">ACCUEIL</a>
+            <a href="enseignant-groupe.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">GROUPES</a>
+            <a href="enseignant-laboratoire.html" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider">LABO IA</a>
+            <a href="enseignant-recompenses.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">BADGES</a>
+          </nav>
+          <a href="connexion.html" class="ml-3 p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5">
+            <i data-lucide="log-out" class="w-4 h-4" stroke-width="2.5"></i>
+          </a>
+        </div>
+      </nav>
 
     <!-- ====== ÉTAT : CHARGEMENT ====== -->
     <div id="state-loading" class="absolute inset-0 flex items-center justify-center">

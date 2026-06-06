@@ -527,7 +527,7 @@
       const reponse = await fetch(POINT_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pilier: pilier, titresExclus: titresExclus })
+        body: JSON.stringify({ pilier: pilier, titresExclus: titresExclus, age: donnees.profil.age, niveauScolaire: donnees.profil.niveau_scolaire })
       });
       if (!reponse.ok) { throw new Error("Réponse fonction " + reponse.status); }
       const defi = await reponse.json();

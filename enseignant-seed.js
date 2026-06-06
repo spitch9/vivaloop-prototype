@@ -1,9 +1,9 @@
 /* ============================================================================
    enseignant-seed.js — Données statiques de l'univers enseignant
    ----------------------------------------------------------------------------
-   Profil de M. Martin et liste de ses groupes, avec la tendance agrégée
-   sur 7 jours par pilier (vocabulaire à 3 niveaux, sans rouge).
-   Lecture seule : aucune réécriture côté navigateur.
+   Le champ profil.role conditionne le comportement des prompts IA :
+   "specialiste" → une activité obligatoirement dans la spécialité + badge "TON DOMAINE"
+   "titulaire"   → 3 matières libres, pas de contrainte ni de badge
    ========================================================================== */
 
 const ENSEIGNANT_SEED = {
@@ -13,17 +13,18 @@ const ENSEIGNANT_SEED = {
     civilite: "M.",
     prenom: "Patrick",
     nom: "Martin",
-    specialite: "Éducation physique"
+    role: "specialiste",               // "specialiste" | "titulaire"
+    specialite: "Éducation physique"   // pertinent uniquement si role === "specialiste"
   },
 
   groupes: [
     {
       id: "5eA",
-      nom_affichage: "5e A",       // aligné sur le groupe de Maya
+      nom_affichage: "5e A",
       niveau_scolaire: "5e année",
       nb_eleves: 24,
       tendances_7j: {
-        sommeil:      "à soutenir",     // pilier faible -> ciblé par le laboratoire
+        sommeil:      "à soutenir",
         alimentation: "à surveiller",
         activite:     "belle énergie",
         emotions:     "à surveiller",

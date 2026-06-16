@@ -592,7 +592,7 @@
       if (!donnees.defi_du_jour) {
         afficherChargement();
         const pilier = pilierLePlusFaible(donnees.tendances_7j);
-        const titresExclus = (donnees.defis || []).map(function (d) { return d.titre; });
+        const titresExclus = [];  // pas d'exclusion : Gemini totalement libre à chaque génération
         const nouveau = await obtenirDefi(pilier, titresExclus);
         nouveau.statut = "proposé";
         nouveau.changements_utilises = 0;

@@ -360,22 +360,13 @@
 
     // ====== ROTATION DE LA QUESTION ======
     function questionDuJour(donnees) {
-      const dateAujourdhui = formaterDateLocale(new Date());
-
-      // 1. Réutiliser si déjà choisie dans cette session (stable au rechargement).
-      const stockee = donnees.question_alimentation_du_jour;
-      if (stockee && stockee.date === dateAujourdhui) {
-        const trouvee = BANQUE_ALIMENTATION.find(function (q) { return q.id === stockee.question_id; });
-        if (trouvee) return trouvee;
-      }
-
-      // 2. Sinon : sélection aléatoire parmi les questions non vues récemment.
-      //    Chaque réinitialisation de la démo produit une question différente.
+      // Exclure les questions vues dans les 7 derniers jours
       const idsRecents = (donnees.journal || [])
         .map(function (j) { return j.alimentation && j.alimentation.question_id; })
         .filter(Boolean);
 
-      // Exclure aussi la question précédemment stockée pour éviter une répétition immédiate
+      // Exclure aussi la question affichée lors du passage précédent (évite la répétition immédiate)
+      const stockee = donnees.question_alimentation_du_jour;
       if (stockee && stockee.question_id) {
         idsRecents.push(stockee.question_id);
       }
@@ -384,14 +375,12 @@
         return idsRecents.indexOf(q.id) === -1;
       });
 
-      // Filet : si toute la banque est exclue (très improbable), tout réouvrir
+      // Filet : si toute la banque est exclue, tout réouvrir
       const pool = candidats.length > 0 ? candidats : BANQUE_ALIMENTATION;
       const choisie = pool[Math.floor(Math.random() * pool.length)];
 
-      donnees.question_alimentation_du_jour = {
-        question_id: choisie.id,
-        date: dateAujourdhui
-      };
+      // Mémoriser pour le prochain passage (servira d'exclusion)
+      donnees.question_alimentation_du_jour = { question_id: choisie.id };
       VivaData.sauvegarder(donnees);
       return choisie;
     }

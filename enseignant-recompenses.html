@@ -124,44 +124,18 @@
     
     ::-webkit-scrollbar { display: none; }
 
-    /* ====== CHANTIER D : MODE PLEINE PAGE DESKTOP (≥ 1024px) ====== */
+    /* ====== CHANTIER D + BADGES DESKTOP ====== */
     @media (min-width: 1024px) {
       body { display: block !important; padding: 0 !important; }
-      #teacher-frame {
-        max-width: 100% !important;
-        width: 100% !important;
-        height: auto !important;
-        min-height: 100vh !important;
-        border-radius: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
+      #teacher-frame { max-width: 100% !important; width: 100% !important; height: auto !important; min-height: 100vh !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; }
       #content-wrapper { height: auto !important; }
       #phone-notch  { display: none !important; }
       #bottom-nav   { display: none !important; }
       #desktop-nav  { display: flex !important; }
-      .scroll-content {
-        overflow-y: visible !important;
-        height: auto !important;
-        flex: none !important;
-        max-width: 1024px;
-        margin-left: auto;
-        margin-right: auto;
-        padding-bottom: 60px !important;
-        padding-left: 2.5rem !important;
-        padding-right: 2.5rem !important;
-      }
-      /* Grille des groupes : 2 colonnes -> 3 colonnes */
-      #groupes-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 1rem !important;
-      }
-      /* Activités laboratoire : empilées -> 3 colonnes côte à côte */
-      #activites-container {
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 1.5rem !important;
-      }
+      .scroll-content { overflow-y: visible !important; height: auto !important; flex: none !important; max-width: 1024px; margin-left: auto; margin-right: auto; padding-bottom: 60px !important; padding-left: 2.5rem !important; padding-right: 2.5rem !important; }
+      #recompenses-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start; }
+      #badge-grid { grid-template-columns: repeat(4, 1fr) !important; }
+      #send-btn-desktop-wrapper { display: block !important; }
     }
   </style>
 </head>
@@ -191,30 +165,13 @@
 
     <!-- ====== CONTENU ====== -->
     <div id="content-wrapper" class="relative h-full flex flex-col">
-      <!-- ====== NAVIGATION DESKTOP ====== -->
-      <nav id="desktop-nav" class="hidden sticky top-0 z-50 border-b border-white/10 w-full"
-           style="background: rgba(10,20,36,0.97); backdrop-filter: blur(16px);">
-        <div class="px-8 py-3 flex items-center gap-4">
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="text-cyan-300 text-lg select-none">🌀</span>
-            <span class="text-white font-black text-base tracking-tight">Vivaloop</span>
-          </div>
-          <div class="flex items-center gap-2 flex-1 ml-2">
-            <span class="text-2xl select-none">👨‍🏫</span>
-            <span class="text-white font-bold text-sm">M. Martin</span>
-            <span class="text-cyan-400/60 text-xs font-bold">· EPS · École Saint-Exupéry</span>
-          </div>
-          <nav class="flex items-center gap-1">
+      <nav id="desktop-nav" class="hidden sticky top-0 z-50 border-b border-white/10 w-full" style="background: rgba(10,20,36,0.97); backdrop-filter: blur(16px);">
+        <div class="px-8 py-3 flex items-center gap-4"><div class="flex items-center gap-2 shrink-0"><span class="text-cyan-300 text-lg">🌀</span><span class="text-white font-black text-base tracking-tight">Vivaloop</span></div><div class="flex items-center gap-2 flex-1 ml-2"><span class="text-2xl">👨‍🏫</span><span class="text-white font-bold text-sm">M. Martin</span><span class="text-cyan-400/60 text-xs font-bold">· EPS · École Saint-Exupéry</span></div><nav class="flex items-center gap-1">
             <a href="enseignant-accueil.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">ACCUEIL</a>
             <a href="enseignant-groupe.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">GROUPES</a>
             <a href="enseignant-laboratoire.html" class="text-zinc-500 hover:text-zinc-300 hover:bg-white/5 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">LABO IA</a>
-            <a href="enseignant-recompenses.html" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider">BADGES</a>
-          </nav>
-          <a href="connexion.html" class="ml-3 p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5">
-            <i data-lucide="log-out" class="w-4 h-4" stroke-width="2.5"></i>
-          </a>
-        </div>
-      </nav>
+            <a href="enseignant-recompenses.html" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-4 py-2 rounded-xl text-[11px] font-black tracking-wider transition-colors">BADGES</a>
+          </nav><a href="connexion.html" class="ml-3 p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5"><i data-lucide="log-out" class="w-4 h-4" stroke-width="2.5"></i></a></div></nav>
       <!-- Notch -->
       <div id="phone-notch" class="flex justify-center pt-3 pb-2 flex-shrink-0">
         <div class="w-32 h-6 bg-black rounded-full"></div>
@@ -265,6 +222,8 @@
       <!-- ====== CONTENU SCROLLABLE ====== -->
       <div class="scroll-content flex-1 overflow-y-auto px-5 pt-1" style="padding-bottom: 180px;">
         
+        <div id="recompenses-grid"><div id="col-gauche">
+
         <!-- ====== ÉTAPE 1 : MODE D'ENVOI ====== -->
         <div class="animate-slide-up" style="animation-delay: 0.3s;">
           <div class="flex items-center gap-2 mb-2 px-1">
@@ -327,25 +286,11 @@
             </div>
           </button>
 
-          <!-- Sélecteur ÉLÈVE (caché par défaut, anonymisé) -->
-          <button id="selector-individual" class="relative block w-full btn-3d hidden">
-            <div class="btn-shadow absolute inset-0 bg-zinc-900 rounded-2xl translate-y-1.5"></div>
-            <div class="relative bg-gradient-to-br from-purple-900/80 to-fuchsia-900/80 backdrop-blur-sm rounded-2xl px-4 py-3 border-2 border-purple-500/40 flex items-center justify-between">
-              
-              <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 bg-purple-500/30 rounded-xl flex items-center justify-center border border-purple-300/40">
-                  <span class="text-lg">🧑‍🎓</span>
-                </div>
-                <div class="text-left">
-                  <p class="text-purple-300 text-[9px] font-black tracking-widest">SÉLECTIONNÉ</p>
-                  <p class="text-white font-black text-sm leading-none">Élève #12</p>
-                  <p class="text-white/60 text-[10px] font-bold">Groupe 6A · Anonymisé 🔒</p>
-                </div>
-              </div>
-
-              <i data-lucide="chevron-down" class="w-5 h-5 text-white/60" stroke-width="2.5"></i>
-            </div>
-          </button>
+          <!-- Sélecteur ÉLÈVE cascade -->
+          <div id="selector-individual" class="hidden">
+            <div class="flex gap-2 mb-2.5"><button onclick="selectGroupe('5eA',this)" id="btn-5eA" class="groupe-filtre-btn active flex-1 bg-gradient-to-br from-cyan-900/80 to-blue-900/80 rounded-xl px-3 py-2 border-2 border-cyan-500/60 text-cyan-300 font-black text-xs tracking-wider">5e A <span class="opacity-60">(24)</span></button><button onclick="selectGroupe('5eB',this)" id="btn-5eB" class="groupe-filtre-btn flex-1 bg-zinc-800/60 rounded-xl px-3 py-2 border-2 border-zinc-700 text-zinc-400 font-black text-xs tracking-wider hover:border-zinc-600">5e B <span class="opacity-60">(22)</span></button></div>
+            <div id="liste-eleves" class="space-y-1.5"></div>
+          </div>
         </div>
 
         <!-- ====== ÉTAPE 3 : CHOIX DU BADGE ====== -->
@@ -361,7 +306,7 @@
           </div>
 
           <!-- Grille de badges 3 colonnes -->
-          <div class="grid grid-cols-3 gap-2">
+          <div id="badge-grid" class="grid grid-cols-3 gap-2">
             
             <!-- BADGE 1 : Champion d'activité -->
             <button onclick="selectBadge('activite', this)" class="badge-btn btn-3d">
@@ -485,6 +430,10 @@
           </div>
         </div>
 
+        </div>
+
+        <div id="col-droite">
+
         <!-- ====== ÉTAPE 4 : MESSAGE PERSONNALISÉ ====== -->
         <div class="mt-4 animate-slide-up" style="animation-delay: 0.6s;">
           <div class="flex items-center justify-between mb-2 px-1">
@@ -518,6 +467,11 @@
           </p>
         </div>
       </div>
+
+
+        <div id="send-btn-desktop-wrapper" class="hidden mt-6"><button id="send-btn-desktop" onclick="envoyerBadge()" class="send-btn-disabled relative block w-full btn-3d transition-opacity duration-300"><div class="btn-shadow absolute inset-0 bg-amber-900 rounded-2xl translate-y-2"></div><div class="shine-effect relative bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-500 rounded-2xl px-5 py-4 border-2 border-amber-200/60 overflow-hidden animate-send-pulse"><div class="absolute -top-8 -right-8 w-32 h-32 bg-white/30 rounded-full blur-2xl"></div><div class="relative flex items-center justify-center gap-2"><i data-lucide="send" class="w-5 h-5 text-amber-900" stroke-width="3"></i><span class="text-amber-900 font-black text-base tracking-wide text-stroke">Envoyer le badge</span><span class="text-xl">🎉</span></div></div></button></div>
+
+        </div><!-- /col-droite --></div><!-- /recompenses-grid -->
 
       <!-- ====== 5. PIED DE PAGE - BOUTON ENVOYER + NAVIGATION ====== -->
       <div id="bottom-nav" class="absolute bottom-0 left-0 right-0">
@@ -587,83 +541,117 @@
 
   <script>
     lucide.createIcons();
-    
-    let selectedMode = 'group';        // 'individual' ou 'group'
-    let selectedBadge = null;          // identifiant du badge choisi
-    
-    // === Sélection du mode ===
+
+    var ELEVES = {
+      '5eA': [
+        { id: 'e1', nom: 'Élève #03', note: 'Très assidu(e)' },
+        { id: 'e2', nom: 'Élève #07', note: '' },
+        { id: 'e3', nom: 'Élève #12', note: 'En progrès 📈' }
+      ],
+      '5eB': [
+        { id: 'e4', nom: 'Élève #05', note: '' },
+        { id: 'e5', nom: 'Élève #09', note: 'A besoin de soutien 💪' }
+      ]
+    };
+
+    var NOMS_BADGES = {
+      activite: "Champion d\'activité 🏃", sommeil: "Maître du sommeil 💤",
+      alimentation: "Explorateur du goût 🥗", zen: "Zen attitude 🧘",
+      numerique: "Équilibre numérique 📱", etoile: "Étoile de la classe 🏆",
+      perseverance: "Persévérance 💪"
+    };
+
+    var selectedMode='group', selectedBadge=null, selectedGroupe='5eA', selectedEleve=null;
+
     function selectMode(mode, btn) {
       selectedMode = mode;
-      
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
-      
-      // Mise à jour du titre étape 2
-      document.getElementById('step2-title').textContent = mode === 'group' ? 'QUEL GROUPE ?' : 'QUEL(LE) ÉLÈVE ?';
-      
-      // Bascule entre les deux sélecteurs
-      const selectorGroup = document.getElementById('selector-group');
-      const selectorIndividual = document.getElementById('selector-individual');
-      
-      if (mode === 'group') {
-        selectorGroup.classList.remove('hidden');
-        selectorIndividual.classList.add('hidden');
-      } else {
-        selectorGroup.classList.add('hidden');
-        selectorIndividual.classList.remove('hidden');
-      }
-      
-      // Re-render des icônes Lucide
+      document.getElementById('step2-title').textContent = mode==='group' ? 'QUEL GROUPE ?' : 'QUEL(LE) ÉLÈVE ?';
+      document.getElementById('selector-group').classList.toggle('hidden', mode!=='group');
+      document.getElementById('selector-individual').classList.toggle('hidden', mode!=='individual');
+      if (mode==='individual') renderEleves(selectedGroupe);
+      selectedEleve = null;
       lucide.createIcons();
     }
-    
-    // === Sélection d'un badge ===
+
+    function selectGroupe(groupeId, btn) {
+      selectedGroupe = groupeId; selectedEleve = null;
+      document.querySelectorAll('.groupe-filtre-btn').forEach(function(b){
+        b.classList.remove('active','border-cyan-500/60','text-cyan-300');
+        b.classList.add('border-zinc-700','text-zinc-400'); b.style.background='';
+      });
+      btn.classList.add('active','border-cyan-500/60','text-cyan-300');
+      btn.classList.remove('border-zinc-700','text-zinc-400');
+      btn.style.background='linear-gradient(to bottom right,rgba(22,78,99,0.8),rgba(30,58,138,0.8))';
+      renderEleves(groupeId);
+    }
+
+    function renderEleves(groupeId) {
+      var liste = document.getElementById('liste-eleves');
+      var eleves = ELEVES[groupeId] || [];
+      liste.innerHTML = '';
+      eleves.forEach(function(e) {
+        var btn = document.createElement('button');
+        btn.className = 'eleve-btn relative block w-full text-left bg-zinc-900/60 hover:bg-zinc-800/60 rounded-xl px-3 py-2 border-2 border-zinc-700 hover:border-purple-500/40 transition-all mb-1.5';
+        (function(eleve, bouton) {
+          bouton.addEventListener('click', function(){ selectEleve(eleve.id, eleve.nom, bouton); });
+        })(e, btn);
+        btn.innerHTML = '<div class="flex items-center gap-2.5">'
+          + '<div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-300/20 shrink-0"><span class="text-base">🧑‍🎓</span></div>'
+          + '<div class="flex-1 min-w-0"><p class="text-white font-black text-xs leading-none">' + e.nom + '</p>'
+          + (e.note ? '<p class="text-white/50 text-[10px] font-bold mt-0.5">'+e.note+'</p>' : '')
+          + '</div></div>';
+        liste.appendChild(btn);
+      });
+      lucide.createIcons();
+    }
+
+    function selectEleve(id, nom, btn) {
+      selectedEleve = { id: id, nom: nom };
+      document.querySelectorAll('.eleve-btn').forEach(function(b){
+        b.classList.remove('border-purple-500/60','bg-purple-900/20'); b.classList.add('border-zinc-700');
+      });
+      btn.classList.remove('border-zinc-700'); btn.classList.add('border-purple-500/60','bg-purple-900/20');
+    }
+
     function selectBadge(badgeId, btn) {
       selectedBadge = badgeId;
-      
-      // Retire la sélection précédente
-      document.querySelectorAll('.badge-btn').forEach(b => {
-        b.classList.remove('selected');
-        b.classList.add('has-selection');
+      document.querySelectorAll('.badge-btn').forEach(function(b){b.classList.remove('selected');b.classList.add('has-selection');});
+      btn.classList.add('selected'); btn.classList.remove('has-selection');
+      ['send-btn','send-btn-desktop'].forEach(function(id){
+        var b=document.getElementById(id);
+        if(b){b.classList.remove('send-btn-disabled');b.classList.add('send-btn-enabled');}
       });
-      
-      // Active le badge cliqué
-      btn.classList.add('selected');
-      btn.classList.remove('has-selection');
-      
-      // Active le bouton envoyer
-      const sendBtn = document.getElementById('send-btn');
-      sendBtn.classList.remove('send-btn-disabled');
-      sendBtn.classList.add('send-btn-enabled');
     }
-    
-    // === Compteur de caractères du message ===
+
     function updateCharCount() {
-      const input = document.getElementById('message-input');
-      const counter = document.getElementById('char-count');
-      counter.textContent = `${input.value.length} / 120`;
+      var input = document.getElementById('message-input');
+      document.getElementById('char-count').textContent = input.value.length + ' / 120';
     }
-    
-    // === Envoi du badge ===
+
     function envoyerBadge() {
-      if (selectedBadge === null) return;
-      
-      // Animation de sortie
-      document.body.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-      document.body.style.opacity = '0.3';
-      document.body.style.transform = 'scale(1.02)';
-      
-      setTimeout(() => {
-        const message = document.getElementById('message-input').value;
-        const destinataire = selectedMode === 'group' ? 'tout le groupe 6A' : 'l\'Élève #12 (Groupe 6A)';
-        
-        alert('🎉 Badge envoyé ! 🎉\n\nLe badge a été envoyé à ' + destinataire + '.' + (message ? '\n\nMessage : "' + message + '"' : ''));
-        
-        document.body.style.opacity = '1';
-        document.body.style.transform = 'scale(1)';
-        window.location.href = 'enseignant-accueil.html';
-      }, 400);
+      if (!selectedBadge) return;
+      var nomBadge = NOMS_BADGES[selectedBadge] || selectedBadge;
+      var dest = selectedMode==='group' ? 'tout le groupe '+selectedGroupe
+               : selectedEleve ? selectedEleve.nom+' ('+selectedGroupe+')' : "l'élève sélectionné(e)";
+      var msg = document.getElementById('message-input').value.trim();
+      var texte = '✅ Badge <strong>'+nomBadge+'</strong> envoyé à <span class="text-white font-black">'+dest+'</span>.';
+      if (msg) texte += '<br><br><span class="text-white/60">Message\u00a0: \u00ab\u00a0'+msg+'\u00a0\u00bb</span>';
+      document.getElementById('success-message').innerHTML = texte;
+      document.getElementById('success-overlay').classList.remove('hidden');
     }
+
+    renderEleves('5eA');
   </script>
+
+  <!-- Overlay de succès -->
+  <div id="success-overlay" class="hidden absolute inset-0 flex flex-col items-center justify-center z-50 px-6" style="background:rgba(10,20,36,0.97);backdrop-filter:blur(20px);">
+    <div class="text-6xl mb-4">🎉</div>
+    <p class="text-white font-black text-2xl text-center mb-2">Badge envoyé !</p>
+    <p id="success-message" class="text-cyan-300 font-bold text-sm text-center leading-relaxed mb-6 max-w-xs"></p>
+    <a href="enseignant-accueil.html" class="bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-black text-sm px-8 py-3 rounded-2xl border border-cyan-400/40">Retour au tableau de bord</a>
+  </div>
+
 </body>
 </html>

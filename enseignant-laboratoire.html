@@ -569,18 +569,15 @@
     }
 
         // ====== RENDU D'UNE CARTE ======
+    // nomCourt : "EPS" si Éducation physique, sinon nom complet.
+    function nomCourt(matiere) {
+      return matiere === "Éducation physique" ? "EPS" : matiere;
+    }
+
     function rendreCarte(activite, indexCarte) {
       const m = MATIERES[activite.matiere] || MATIERES["Mathématiques"];
       const d = DIFFICULTES[activite.difficulte] || DIFFICULTES["FACILE"];
       const delai = 0.45 + indexCarte * 0.1;
-
-      const badgeDomaine = activite.est_domaine_enseignant
-        ? '<div class="absolute top-2 right-2 bg-amber-300 rounded-full px-2 py-0.5 border-2 border-amber-200" style="z-index: 2;">' +
-            '<span class="text-amber-900 text-[9px] font-black tracking-widest">⭐ TON DOMAINE</span>' +
-          '</div>'
-        : '';
-
-      const margeHeader = activite.est_domaine_enseignant ? ' mt-3' : '';
 
       return (
         '<a href="activite-detail.html?index=' + indexCarte + '" class="activity-card-link block btn-3d animate-slide-up" style="animation-delay: ' + delai + 's;">' +
@@ -588,20 +585,19 @@
           '<div class="activity-inner relative rounded-3xl p-4 border-2 overflow-hidden" style="background: ' + m.gradient + '; border-color: ' + m.borderColor + ';">' +
             '<div class="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl" style="background-color: ' + m.haloColor + ';"></div>' +
             '<div class="absolute top-2 right-3 text-[80px] font-black select-none leading-none" style="opacity: 0.25;">' + m.emoji + '</div>' +
-            badgeDomaine +
             '<div class="relative">' +
-              '<div class="flex items-center justify-between mb-2' + margeHeader + '">' +
-                '<div class="flex items-center gap-2">' +
+              '<div class="flex items-start gap-2 mb-3">' +
+                '<div class="flex flex-col items-center gap-1.5 shrink-0">' +
                   '<div class="w-9 h-9 rounded-xl flex items-center justify-center border" style="background-color: ' + m.matiereBoxBg + '; border-color: ' + m.matiereBoxBorder + ';">' +
                     '<span class="text-xl">' + m.emoji + '</span>' +
                   '</div>' +
-                  '<div>' +
-                    '<p class="text-[9px] font-black tracking-widest" style="color: ' + m.smallTextColor + ';">MATIÈRE</p>' +
-                    '<p class="text-white font-black text-xs leading-none">' + activite.matiere + '</p>' +
+                  '<div class="bg-zinc-900/70 rounded-full px-2 py-0.5 border" style="border-color: ' + d.borderColor + ';">' +
+                    '<span class="text-[8px] font-black tracking-wider" style="color: ' + d.textColor + ';">' + activite.difficulte + '</span>' +
                   '</div>' +
                 '</div>' +
-                '<div class="bg-zinc-900/60 backdrop-blur-sm rounded-full px-2 py-0.5 border" style="border-color: ' + d.borderColor + ';">' +
-                  '<span class="text-[9px] font-black tracking-wider" style="color: ' + d.textColor + ';">' + activite.difficulte + '</span>' +
+                '<div class="pt-0.5">' +
+                  '<p class="text-[9px] font-black tracking-widest leading-none" style="color: ' + m.smallTextColor + ';">MATIÈRE</p>' +
+                  '<p class="text-white font-black text-xs leading-tight mt-0.5">' + nomCourt(activite.matiere) + '</p>' +
                 '</div>' +
               '</div>' +
               '<h3 class="text-white font-black text-lg tracking-tight text-stroke leading-tight mb-2">' + activite.titre + '</h3>' +
@@ -628,7 +624,7 @@
       );
     }
 
-    // ====== RENDU DE LA PAGE ======
+        // ====== RENDU DE LA PAGE ======
     function rendreEntete(groupe, pilierCode) {
       const info = PILIERS_INFO[pilierCode] || PILIERS_INFO["SOMMEIL"];
       document.getElementById("lab-filtre-actif").textContent =

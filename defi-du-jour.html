@@ -555,7 +555,7 @@
       spanPilier.style.color = infoPilier.couleur;
       document.getElementById("defi-pilier-badge").style.borderColor = infoPilier.bordure;
 
-      document.getElementById("defi-emoji").textContent       = defi.emoji;
+      document.getElementById("defi-emoji").textContent       = infoPilier.emoji;  // emoji pilier (fiable à grande taille)
       document.getElementById("defi-titre").textContent       = defi.titre;
       document.getElementById("defi-description").textContent = defi.description;
       document.getElementById("defi-xp").textContent          = "+" + defi.xp + " XP";
@@ -611,7 +611,26 @@
 
     // ====== ACTIONS ======
     function accepterDefi() {
-      donnees.defi_du_jour.statut = "accepté";
+      const defi      = donnees.defi_du_jour;
+      const titreDefi = defi.titre;   // sauvegarder avant de nullifier
+
+      defi.statut = 'accepté';
+
+      // Archiver dans l'historique pour enrichir la liste d'exclusions futures
+      if (!donnees.defis) donnees.defis = [];
+      donnees.defis.unshift({
+        titre:      defi.titre,
+        pilier:     defi.pilier,
+        emoji:      defi.emoji,
+        rarete:     defi.rarete,
+        xp:         defi.xp,
+        statut:     'accepté',
+        validation: null
+      });
+      donnees.defis = donnees.defis.slice(0, 10);  // garder les 10 plus récents
+
+      // Vider defi_du_jour → la prochaine visite génère un nouveau défi
+      donnees.defi_du_jour = null;
       VivaData.sauvegarder(donnees);
 
       document.body.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
@@ -619,7 +638,7 @@
       document.body.style.transform = 'scale(1.02)';
 
       setTimeout(function () {
-        alert('🎉 Défi accepté !\n\n« ' + donnees.defi_du_jour.titre + ' » t\'attend.\n\nReviens demain pour le valider et continuer ta série. 🔥');
+        alert('🎉 Défi accepté !\n\n« ' + titreDefi + ' » t\'attend.\n\nReviens demain pour le valider et continuer ta série. 🔥');
         document.body.style.opacity = '1';
         document.body.style.transform = 'scale(1)';
         window.location.href = 'accueil.html';

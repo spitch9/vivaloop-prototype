@@ -358,36 +358,35 @@
       return a + "-" + m + "-" + j;
     }
 
-    // Indice déterministe à partir d'une chaîne de date.
-    function indiceDepuisDate(dateStr, longueur) {
-      let somme = 0;
-      for (let i = 0; i < dateStr.length; i++) somme += dateStr.charCodeAt(i);
-      return somme % longueur;
-    }
-
     // ====== ROTATION DE LA QUESTION ======
     function questionDuJour(donnees) {
       const dateAujourdhui = formaterDateLocale(new Date());
 
-      // 1. Réutiliser si déjà calculée pour aujourd'hui (démo stable au rechargement).
+      // 1. Réutiliser si déjà choisie dans cette session (stable au rechargement).
       const stockee = donnees.question_alimentation_du_jour;
       if (stockee && stockee.date === dateAujourdhui) {
         const trouvee = BANQUE_ALIMENTATION.find(function (q) { return q.id === stockee.question_id; });
         if (trouvee) return trouvee;
       }
 
-      // 2. Sinon : départ déterministe selon la date, en sautant les ids déjà vus récemment.
+      // 2. Sinon : sélection aléatoire parmi les questions non vues récemment.
+      //    Chaque réinitialisation de la démo produit une question différente.
       const idsRecents = (donnees.journal || [])
         .map(function (j) { return j.alimentation && j.alimentation.question_id; })
         .filter(Boolean);
 
-      const depart = indiceDepuisDate(dateAujourdhui, BANQUE_ALIMENTATION.length);
-      let choisie = null;
-      for (let i = 0; i < BANQUE_ALIMENTATION.length; i++) {
-        const candidat = BANQUE_ALIMENTATION[(depart + i) % BANQUE_ALIMENTATION.length];
-        if (idsRecents.indexOf(candidat.id) === -1) { choisie = candidat; break; }
+      // Exclure aussi la question précédemment stockée pour éviter une répétition immédiate
+      if (stockee && stockee.question_id) {
+        idsRecents.push(stockee.question_id);
       }
-      if (!choisie) choisie = BANQUE_ALIMENTATION[depart];  // filet : tout exclu (improbable)
+
+      const candidats = BANQUE_ALIMENTATION.filter(function (q) {
+        return idsRecents.indexOf(q.id) === -1;
+      });
+
+      // Filet : si toute la banque est exclue (très improbable), tout réouvrir
+      const pool = candidats.length > 0 ? candidats : BANQUE_ALIMENTATION;
+      const choisie = pool[Math.floor(Math.random() * pool.length)];
 
       donnees.question_alimentation_du_jour = {
         question_id: choisie.id,
